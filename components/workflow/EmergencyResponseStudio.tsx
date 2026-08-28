@@ -45,9 +45,7 @@ export function EmergencyResponseStudio() {
             setIsPlaying(false);
             return prev;
           }
-          const next = prev + 1;
-          handleStateTransition(next);
-          return next;
+          return prev + 1;
         });
       }, 3200);
     } else {
@@ -59,18 +57,15 @@ export function EmergencyResponseStudio() {
     };
   }, [isPlaying]);
 
-  const handleStateTransition = (newIndex: number) => {
-    soundEffects.playClick();
+  // Handle side-effects cleanly outside the render cycle
+  useEffect(() => {
+    if (stateIndex <= 6) setEvacuatedCount(0);
+    else if (stateIndex === 7) setEvacuatedCount(68);
+    else if (stateIndex === 8) setEvacuatedCount(190);
+    else if (stateIndex === 9) setEvacuatedCount(284);
+    else if (stateIndex >= 10) setEvacuatedCount(340);
 
-    // Dynamically update evacuation progress based on state index
-    if (newIndex <= 6) setEvacuatedCount(0);
-    else if (newIndex === 7) setEvacuatedCount(68);
-    else if (newIndex === 8) setEvacuatedCount(190);
-    else if (newIndex === 9) setEvacuatedCount(284);
-    else if (newIndex >= 10) setEvacuatedCount(340);
-
-    // Trigger celebratory confetti upon resolution
-    if (newIndex === 10) {
+    if (stateIndex === 10) {
       soundEffects.playSuccess();
       setShowConfetti(true);
       addToast({
@@ -78,7 +73,7 @@ export function EmergencyResponseStudio() {
         title: 'Incident Successfully Resolved',
         message: 'All 340 occupants verified safe. Zero casualties.',
       });
-    } else if (newIndex === 4) {
+    } else if (stateIndex === 4) {
       soundEffects.playAlert();
       addToast({
         type: 'error',
@@ -86,21 +81,19 @@ export function EmergencyResponseStudio() {
         message: 'Science Block B building evacuation active.',
       });
     }
-  };
+  }, [stateIndex, addToast]);
 
   const handleNext = () => {
     if (stateIndex < EMERGENCY_12_STATES.length - 1) {
-      const next = stateIndex + 1;
-      setStateIndex(next);
-      handleStateTransition(next);
+      soundEffects.playClick();
+      setStateIndex(stateIndex + 1);
     }
   };
 
   const handlePrev = () => {
     if (stateIndex > 0) {
-      const prev = stateIndex - 1;
-      setStateIndex(prev);
-      handleStateTransition(prev);
+      soundEffects.playClick();
+      setStateIndex(stateIndex - 1);
     }
   };
 

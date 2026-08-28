@@ -28,7 +28,8 @@ export type CardType =
   | 'evacuation_diagram'
   | 'risk_heatmap'
   | 'emergency_poster'
-  | 'visual_asset';
+  | 'visual_asset'
+  | 'incident_playbook';
 
 export interface ResponseCard {
   type: CardType;
@@ -407,6 +408,40 @@ export function generateAIResponse(
         'Create fire safety poster',
         'Show risk heatmap overlay',
         'Dispatch backup responders',
+      ],
+      updatedContext,
+    };
+  }
+
+  // ───────────────────────────────────────────────────────────────────────────
+  // MODE 5: AUTONOMOUS AGENTIC PLAYBOOK
+  // ───────────────────────────────────────────────────────────────────────────
+  if (mode === 'dispatch_playbook') {
+    return {
+      mode,
+      intent: 'dispatch_playbook',
+      text: `**Agentic Protocol Formulated — ${targetIncident.location}**\n\nI have auto-orchestrated a tactical response playbook based on current thermal and occupancy telemetry. Please review the multi-step protocol below.\n\n*Click **AUTHORIZE DISPATCH** to seamlessly execute all directives to integrated subsystems and campus responders.*`,
+      cards: [
+        {
+          type: 'incident_playbook',
+          data: {
+            location: targetIncident.location,
+            incidentTitle: targetIncident.title,
+            steps: [
+              { id: 's1', title: 'Dispatch Tactical Squad Alpha', detail: 'Cpt. Alex Rivera (Fire & SCBA) · 140m / 45s ETA', done: false },
+              { id: 's2', title: 'Unlock Exit Doors B & C', detail: 'Disengage electromagnetic holdbacks on East Corridor', done: false },
+              { id: 's3', title: 'Broadcast Student Push Alert', detail: 'Direct occupants to Assembly Point Alpha (North Quad)', done: false },
+              { id: 's4', title: 'Pre-position Medical ALS Unit', detail: 'Dr. Sarah Mills staging at North Quad Gate', done: false },
+            ]
+          },
+        },
+      ],
+      visuals: [],
+      suggestions: [
+        'Generate an evacuation map',
+        'Show me the incident visually',
+        'Who is the nearest responder?',
+        'Display risk heatmap',
       ],
       updatedContext,
     };

@@ -12,7 +12,7 @@ interface LayerToggleProps {
   label: string;
   active: boolean;
   color: string;
-  icon: React.ElementType;
+  icon: any;
   onToggle: () => void;
 }
 

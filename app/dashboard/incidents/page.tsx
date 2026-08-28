@@ -21,7 +21,7 @@ import React, { useState } from 'react';
 import { EmergencyResponseStudio } from '@/components/workflow/EmergencyResponseStudio';
 import { soundEffects } from '@/lib/audio-effects';
 
-const TYPE_ICONS: Record<string, React.ElementType> = {
+const TYPE_ICONS: Record<string, any> = {
   fire: Flame,
   intrusion: UserX,
   medical: Heart,

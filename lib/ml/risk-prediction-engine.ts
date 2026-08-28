@@ -1,6 +1,6 @@
 /**
  * CampusShield AI — Machine Learning Risk Prediction Engine
- * Classification & Multi-Factor Risk Inference Engine with SHAP Impact Explanations
+ * Classification, Multi-Factor Risk Inference & Cellular Automata Blast Radius Simulator
  */
 
 import { CAMPUS_BUILDINGS, CampusSafetyRecord } from './campus-risk-dataset';
@@ -32,6 +32,20 @@ export interface PreventiveActionItem {
   urgency: 'critical' | 'high' | 'medium';
 }
 
+export interface BlastRadiusHazardSnapshot {
+  elapsedSeconds: number;
+  center: { x: number; y: number; lat: number; lng: number };
+  radiusMeters: number;
+  radiusUnits: number; // normalized coordinate units
+  temperatureMaxC: number;
+  spreadRateMps: number;
+  windSpeedKmh: number;
+  windDirectionDeg: number;
+  threatLevel: 'contained' | 'expanding' | 'flashover' | 'critical';
+  polygonPoints: Array<{ x: number; y: number }>;
+  blockedNodeIds: string[];
+}
+
 export interface MLRiskPredictionResult {
   riskScore: number; // 0..100
   dominantCategory: 'low' | 'medium' | 'high' | 'critical';
@@ -45,6 +59,69 @@ export interface MLRiskPredictionResult {
   naturalLanguageExplanation: string;
   preventiveActions: PreventiveActionItem[];
   forecast24h: Array<{ hour: number; timeLabel: string; predictedRisk: number; baseline: number }>;
+  blastRadiusSnapshot: BlastRadiusHazardSnapshot;
+}
+
+// ─── Cellular Automata & Wind Vector Blast Radius Model ──────────────────────
+
+export function simulateBlastRadiusExpansion(
+  origin = { x: 230, y: 320, lat: 28.6139, lng: 77.2090 },
+  elapsedSeconds = 45,
+  wind = { speedKmh: 14, directionDeg: 45 }, // 14 km/h North-East
+): BlastRadiusHazardSnapshot {
+  // Base spread model: Non-linear expansion with wind vector elongation
+  const baseSpreadRate = 0.85; // meters per second
+  const windBoost = (wind.speedKmh / 10) * 0.45;
+  const effectiveSpreadRate = baseSpreadRate + windBoost;
+
+  const currentRadiusMeters = Math.min(180, Math.round(15 + elapsedSeconds * effectiveSpreadRate));
+  const currentRadiusUnits = Math.min(160, Math.round(currentRadiusMeters * 0.8));
+
+  // Temperature dissipation curve
+  const peakTemp = Math.max(65, Math.round(360 - elapsedSeconds * 1.8));
+
+  // Asymmetric blast-radius polygon vertices (elongated downwind)
+  const polygonPoints: Array<{ x: number; y: number }> = [];
+  const numVertices = 16;
+  const windRad = (wind.directionDeg * Math.PI) / 180;
+
+  for (let i = 0; i < numVertices; i++) {
+    const angle = (i * 2 * Math.PI) / numVertices;
+    // Downwind stretch factor
+    const windAlignment = Math.cos(angle - windRad);
+    const stretch = 1 + windAlignment * 0.45;
+    const r = currentRadiusUnits * stretch;
+
+    polygonPoints.push({
+      x: Math.round(origin.x + Math.cos(angle) * r),
+      y: Math.round(origin.y + Math.sin(angle) * r),
+    });
+  }
+
+  // Determine blocked navigation graph nodes based on blast radius
+  const blockedNodeIds: string[] = ['N-SCIB-302'];
+  if (currentRadiusUnits > 35) blockedNodeIds.push('N-SCIB-CORR');
+  if (currentRadiusUnits > 70) blockedNodeIds.push('N-SCIB-STAIR-W');
+  if (currentRadiusUnits > 110) blockedNodeIds.push('N-CENTRAL-QUAD');
+
+  let threatLevel: BlastRadiusHazardSnapshot['threatLevel'] = 'contained';
+  if (currentRadiusMeters >= 120) threatLevel = 'critical';
+  else if (currentRadiusMeters >= 70) threatLevel = 'flashover';
+  else if (currentRadiusMeters >= 30) threatLevel = 'expanding';
+
+  return {
+    elapsedSeconds,
+    center: origin,
+    radiusMeters: currentRadiusMeters,
+    radiusUnits: currentRadiusUnits,
+    temperatureMaxC: peakTemp,
+    spreadRateMps: Number(effectiveSpreadRate.toFixed(2)),
+    windSpeedKmh: wind.speedKmh,
+    windDirectionDeg: wind.directionDeg,
+    threatLevel,
+    polygonPoints,
+    blockedNodeIds,
+  };
 }
 
 export function predictCampusRisk(inputs: MLPredictionInputs): MLRiskPredictionResult {
@@ -297,13 +374,9 @@ export function predictCampusRisk(inputs: MLPredictionInputs): MLRiskPredictionR
   // 24-Hour Predictive Forecast Trajectory Curve
   const forecast24h = Array.from({ length: 24 }, (_, h) => {
     let hourRisk = finalRiskScore;
-    // Morning rise
     if (h >= 9 && h <= 12) hourRisk += 6;
-    // Afternoon lab peak
     if (h >= 13 && h <= 17) hourRisk += 14;
-    // Evening cooldown
     if (h >= 18 && h <= 21) hourRisk -= 10;
-    // Night lull
     if (h >= 22 || h <= 5) hourRisk -= 22;
 
     const baseline = 28;
@@ -314,6 +387,12 @@ export function predictCampusRisk(inputs: MLPredictionInputs): MLRiskPredictionR
       baseline,
     };
   });
+
+  const blastRadiusSnapshot = simulateBlastRadiusExpansion(
+    { x: 230, y: 320, lat: 28.6139, lng: 77.2090 },
+    45,
+    { speedKmh: inputs.weather === 'Heatwave' ? 18 : 12, directionDeg: 45 }
+  );
 
   return {
     riskScore: finalRiskScore,
@@ -328,5 +407,6 @@ export function predictCampusRisk(inputs: MLPredictionInputs): MLRiskPredictionR
     naturalLanguageExplanation,
     preventiveActions,
     forecast24h,
+    blastRadiusSnapshot,
   };
 }

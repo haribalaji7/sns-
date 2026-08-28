@@ -112,7 +112,7 @@ export const DETECTION_SCENARIOS: Record<string, DetectionScenario> = {
     evidence: {
       sourceType: 'CCTV Neural Stream (YOLOv11x + FLIR Thermal)',
       sourceId: 'CAM-B3-01 (Sensor SEN-002)',
-      timestamp: new Date().toLocaleTimeString(),
+      timestamp: '14:32:00',
       gpsAccuracy: '±1.2 meters (Indoor Beacon ID: B3-302)',
       sensorTelemetries: [
         { label: 'Thermal Anomaly', value: '342.4 °C', status: 'alert' },
@@ -161,7 +161,7 @@ export const DETECTION_SCENARIOS: Record<string, DetectionScenario> = {
     evidence: {
       sourceType: 'Multi-Sensor Fusion (CCTV + Optical Smoke)',
       sourceId: 'CAM-LIB-04',
-      timestamp: new Date().toLocaleTimeString(),
+      timestamp: '14:32:00',
       gpsAccuracy: '±2.0 meters',
       sensorTelemetries: [
         { label: 'Optical Obscuration', value: '4.8 %/m', status: 'alert' },
@@ -207,7 +207,7 @@ export const DETECTION_SCENARIOS: Record<string, DetectionScenario> = {
     evidence: {
       sourceType: 'AI Pose Estimation & Anomaly Tracker',
       sourceId: 'CAM-QUAD-05',
-      timestamp: new Date().toLocaleTimeString(),
+      timestamp: '14:32:00',
       gpsAccuracy: '±1.5 meters',
     },
     suggestedActions: [
@@ -250,7 +250,7 @@ export const DETECTION_SCENARIOS: Record<string, DetectionScenario> = {
     evidence: {
       sourceType: 'CCTV Vision + AED BLE Telemetry Gateway',
       sourceId: 'CAM-ATH-03 (AED-BEACON-04)',
-      timestamp: new Date().toLocaleTimeString(),
+      timestamp: '14:32:00',
       gpsAccuracy: '±0.8 meters',
       sensorTelemetries: [
         { label: 'AED Beacon #4', value: 'Beacon Deployed & Lid Open', status: 'alert' },
@@ -297,7 +297,7 @@ export const DETECTION_SCENARIOS: Record<string, DetectionScenario> = {
     evidence: {
       sourceType: 'CCTV Neural Movement Kinematics Model',
       sourceId: 'CAM-GATE-01',
-      timestamp: new Date().toLocaleTimeString(),
+      timestamp: '14:32:00',
       gpsAccuracy: '±1.8 meters',
     },
     suggestedActions: [
@@ -339,7 +339,7 @@ export const DETECTION_SCENARIOS: Record<string, DetectionScenario> = {
     evidence: {
       sourceType: 'AI Crowd Density Estimator (YOLOv11x-Crowd)',
       sourceId: 'CAM-QUAD-05',
-      timestamp: new Date().toLocaleTimeString(),
+      timestamp: '14:32:00',
       gpsAccuracy: '±2.5 meters',
     },
     suggestedActions: [
@@ -381,7 +381,7 @@ export const DETECTION_SCENARIOS: Record<string, DetectionScenario> = {
     evidence: {
       sourceType: 'Computer Vision Water Specular Analysis + Flow Sensor',
       sourceId: 'CAM-IT-02 (SEN-FLOOD-02)',
-      timestamp: new Date().toLocaleTimeString(),
+      timestamp: '14:32:00',
       gpsAccuracy: '±1.2 meters',
       sensorTelemetries: [
         { label: 'Liquid Immersion Sensor', value: '4.2 cm (Water Level High)', status: 'alert' },
@@ -427,7 +427,7 @@ export const DETECTION_SCENARIOS: Record<string, DetectionScenario> = {
     evidence: {
       sourceType: 'High-Speed Optical Flame / Arc Detector + Grid Relay',
       sourceId: 'CAM-IT-02 (RELAY-SUB-04)',
-      timestamp: new Date().toLocaleTimeString(),
+      timestamp: '14:32:00',
       gpsAccuracy: '±1.0 meters',
       sensorTelemetries: [
         { label: 'Relay Trip Status', value: 'Overcurrent Zone 4 Trip', status: 'alert' },
@@ -473,7 +473,7 @@ export const DETECTION_SCENARIOS: Record<string, DetectionScenario> = {
     evidence: {
       sourceType: 'Photoionization Detector + FLIR Optical Gas Imaging',
       sourceId: 'CAM-B3-01 (SEN-006)',
-      timestamp: new Date().toLocaleTimeString(),
+      timestamp: '14:32:00',
       gpsAccuracy: '±1.1 meters',
       sensorTelemetries: [
         { label: 'VOC Detector', value: '850 ppm (LEL: 18%)', status: 'alert' },
@@ -517,7 +517,7 @@ export const STUDENT_SOS_PRESET: DetectionScenario = {
   evidence: {
     sourceType: 'CampusShield Mobile App SOS Trigger',
     sourceId: 'SOS-USER-8821 (App v2.4.1)',
-    timestamp: new Date().toLocaleTimeString(),
+    timestamp: '14:32:00',
     studentName: 'Maya Lin',
     studentId: 'STU-2024-8841 (Bioengineering, Sophomore)',
     studentMessage: 'HELP! Severe anaphylactic reaction in Dorm A room 214. Throat swelling fast, epi-pen expired.',
@@ -559,7 +559,7 @@ export const VOICE_TRANSCRIPT_PRESET: DetectionScenario = {
   evidence: {
     sourceType: 'Emergency 911 Call Stream (Whisper + Gemini Audio NLP)',
     sourceId: 'AUDIO-CH-911-042',
-    timestamp: new Date().toLocaleTimeString(),
+    timestamp: '14:32:00',
     audioDuration: '00:34',
     audioWaveform: [24, 45, 78, 92, 60, 45, 88, 95, 72, 50, 65, 89, 94, 76, 40, 58, 85, 91, 70, 35],
     voiceTranscript: '"Campus Dispatch, this is Professor Vance in Science Lab 302! A solvent beaker ignited near fume hood 2. We have active flames spreading to the overhead shelf and heavy black smoke. We are evacuating about 40 students right now through Exit B! Send Squad Alpha immediately!"',
@@ -600,7 +600,7 @@ export const OFFICER_REPORT_PRESET: DetectionScenario = {
   evidence: {
     sourceType: 'Security Officer Handheld Terminal (Radio ID: CH-2)',
     sourceId: 'OFFICER-UNIT-105',
-    timestamp: new Date().toLocaleTimeString(),
+    timestamp: '14:32:00',
     officerName: 'Off. Marcus Webb',
     officerBadge: 'BADGE-#105 (Security Wing A)',
     officerNotes: 'Encountered 2 non-campus individuals attempting forced entry past Barrier Gate 1. Verbal hostility escalated. Requesting Sgt. Sharma unit for backup.',

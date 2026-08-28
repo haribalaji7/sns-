@@ -1,7 +1,0 @@
-{
-  "/student/page": "app/student/page.js",
-  "/page": "app/page.js",
-  "/dashboard/page": "app/dashboard/page.js",
-  "/dashboard/responders/page": "app/dashboard/responders/page.js",
-  "/dashboard/digital-twin/page": "app/dashboard/digital-twin/page.js"
-}

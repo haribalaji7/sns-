@@ -26,10 +26,8 @@ export function Dropzone({ onFileSelect, className, accept = 'image/*,video/*' }
     if (file.type.startsWith('image/')) {
       const url = URL.createObjectURL(file);
       setPreview(url);
-      onFileSelect(url);
-    } else {
-      onFileSelect(file);
     }
+    onFileSelect(file);
   };
 
   const handleDrop = useCallback((e: React.DragEvent) => {

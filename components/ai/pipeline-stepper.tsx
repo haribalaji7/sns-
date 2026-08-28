@@ -76,7 +76,7 @@ export function PipelineStepper({ currentStage, stageLatencies = {} }: PipelineS
       </div>
 
       {/* Stepper Flow Grid */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-7 gap-2">
+      <div className="flex gap-3 overflow-x-auto pb-2 snap-x hide-scrollbar" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
         {STAGES.map((st, idx) => {
           const isCompleted = idx < currentIndex || currentStage === 'dispatched' || currentStage === 'idle';
           const isCurrent = idx === currentIndex && currentStage !== 'idle' && currentStage !== 'dispatched';
@@ -85,7 +85,7 @@ export function PipelineStepper({ currentStage, stageLatencies = {} }: PipelineS
           return (
             <div
               key={st.id}
-              className={`relative rounded-lg p-2.5 flex flex-col justify-between border transition-all duration-300 ${
+              className={`relative rounded-lg p-2.5 flex flex-col justify-between border transition-all duration-300 min-w-[150px] flex-shrink-0 snap-start ${
                 isCurrent
                   ? 'bg-[rgba(20,241,217,0.12)] border-[#14F1D9] shadow-[0_0_15px_rgba(20,241,217,0.2)]'
                   : isCompleted

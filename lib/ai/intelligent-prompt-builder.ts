@@ -186,7 +186,8 @@ export type CopilotMode =
   | 'evacuation_map'
   | 'risk_heatmap'
   | 'emergency_poster'
-  | 'incident_report';
+  | 'incident_report'
+  | 'dispatch_playbook';
 
 export function classifyCopilotMode(query: string): CopilotMode {
   const q = query.toLowerCase();
@@ -217,6 +218,11 @@ export function classifyCopilotMode(query: string): CopilotMode {
     /how the fire may spread|visual of the accident|visual of the incident/i.test(q)
   ) {
     return 'image_generation';
+  }
+
+  // 6. Autonomous Playbook / Dispatch Agent
+  if (/playbook|dispatch|tactical plan|action plan|auto-orchestrate|orchestrate|execute plan/.test(q)) {
+    return 'dispatch_playbook';
   }
 
   // Default: Text Intelligence with supporting data cards

@@ -303,19 +303,19 @@ export function CCTVScannerCanvas({
       </div>
 
       {/* ─── Bottom HUD Status Footer ─────────────────────────────────── */}
-      <div className="flex items-center justify-between px-4 py-2 bg-[#070B12]/90 border-t border-white/[0.08] text-[10px] font-mono text-[#8B9AB4] select-none">
+      <div className="flex items-center justify-between px-4 py-2.5 bg-[#070B12] border-t border-white/[0.08] text-[10px] font-mono text-[#8B9AB4] select-none flex-wrap gap-2 relative z-20">
         <div className="flex items-center gap-3">
-          <span className="flex items-center gap-1 text-[#22D3A5]">
-            <span className="w-1.5 h-1.5 rounded-full bg-[#22D3A5]" /> 60.0 FPS
+          <span className="flex items-center gap-1.5 text-[#22D3A5] font-bold">
+            <span className="w-1.5 h-1.5 rounded-full bg-[#22D3A5] animate-pulse" /> 60.0 FPS
           </span>
-          <span className="hidden sm:inline">Bitrate: 6.4 Mbps</span>
-          <span className="hidden sm:inline">Codec: H.265 / NVENC</span>
+          <span className="hidden md:inline">Bitrate: 6.4 Mbps</span>
+          <span className="hidden lg:inline">Codec: H.265 / NVENC</span>
         </div>
 
         <div className="flex items-center gap-3">
           <button
             onClick={() => setShowLabels(!showLabels)}
-            className="text-[#14F1D9] hover:underline cursor-pointer"
+            className="text-[#14F1D9] hover:underline cursor-pointer font-bold px-2 py-0.5 rounded bg-[#14F1D9]/10 border border-[#14F1D9]/30"
           >
             {showLabels ? 'Hide Bounding Boxes' : 'Show Bounding Boxes'}
           </button>

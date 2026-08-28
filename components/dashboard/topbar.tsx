@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { Search, Bell, Shield, ChevronDown, Wifi, Cpu, Database } from 'lucide-react';
+import { Search, Bell, Shield, ChevronDown, Wifi, Cpu, Database, Sparkles } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { LiveIndicator } from '@/components/ui';
 import { useDashboardStore } from '@/store/dashboard';
@@ -9,7 +9,7 @@ import { useDashboardStore } from '@/store/dashboard';
 export function DashboardTopBar() {
   const [time, setTime] = useState('');
   const [searchFocused, setSearchFocused] = useState(false);
-  const { metrics, toasts, removeToast } = useDashboardStore();
+  const { metrics, toasts, removeToast, toggleCopilot } = useDashboardStore();
 
   useEffect(() => {
     const update = () => setTime(new Date().toLocaleTimeString('en-US', { hour12: false }));
@@ -66,8 +66,17 @@ export function DashboardTopBar() {
           </span>
         </div>
 
-        {/* Notification bell */}
+        {/* AI Copilot Slide-over Button */}
+        <button
+          onClick={toggleCopilot}
+          className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-gradient-to-r from-[#14F1D9]/15 to-[#7C5CFF]/15 border border-[#14F1D9]/40 text-[#14F1D9] hover:bg-[#14F1D9]/25 transition-all shadow-[0_0_15px_rgba(20,241,217,0.2)] cursor-pointer text-xs font-bold"
+          title="Open AI Copilot"
+        >
+          <Sparkles className="w-3.5 h-3.5 text-[#14F1D9] animate-pulse" />
+          <span className="hidden sm:inline">AI Copilot</span>
+        </button>
 
+        {/* Notification bell */}
         <button className="relative w-8 h-8 rounded-xl flex items-center justify-center text-[#8B9AB4] hover:text-[#F0F4FF] hover:bg-white/[0.06] transition-colors">
           <Bell className="w-4 h-4" />
           {metrics.activeIncidents > 0 && (

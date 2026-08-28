@@ -46,7 +46,7 @@ const severityColor: Record<string, string> = {
   low: '#22D3A5',
 };
 
-const typeIcon: Record<string, React.ElementType> = {
+const typeIcon: Record<string, any> = {
   fire: Flame,
   medical: Activity,
   crowd: Users,

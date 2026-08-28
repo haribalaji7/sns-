@@ -31,6 +31,7 @@ interface DashboardStore {
   mapStyle: 'dark' | 'satellite';
   currentDetection: any | null;
   copilotOpen: boolean;
+  liveSensorStreaming: boolean;
 
   // Actions
   selectIncident: (id: string | null) => void;
@@ -40,6 +41,8 @@ interface DashboardStore {
   toggleMapStyle: () => void;
   toggleCopilot: () => void;
   setCopilotOpen: (open: boolean) => void;
+  toggleLiveSensorStreaming: () => void;
+  tickTelemetry: () => void;
   acknowledgeAlert: (id: string) => void;
   addToast: (t: Omit<ToastNotification, 'id' | 'timestamp'>) => void;
   removeToast: (id: string) => void;
@@ -66,6 +69,7 @@ export const useDashboardStore = create<DashboardStore>()(
     mapStyle:           'dark',
     currentDetection:   null,
     copilotOpen:        false,
+    liveSensorStreaming: true,
 
     selectIncident: (id) => set({ selectedIncidentId: id }),
     selectZone:     (id) => set({ selectedZoneId: id }),
@@ -76,6 +80,18 @@ export const useDashboardStore = create<DashboardStore>()(
     })),
     toggleCopilot:  ()   => set((s) => ({ copilotOpen: !s.copilotOpen })),
     setCopilotOpen: (open) => set({ copilotOpen: open }),
+    toggleLiveSensorStreaming: () => set((s) => ({ liveSensorStreaming: !s.liveSensorStreaming })),
+    tickTelemetry: () => set((s) => {
+      const delta = (Math.random() - 0.5) * 0.4;
+      const newAccuracy = Number(Math.min(99.9, Math.max(94.0, s.metrics.aiAccuracy + delta)).toFixed(1));
+      return {
+        metrics: {
+          ...s.metrics,
+          aiAccuracy: newAccuracy,
+          sensorsOnline: Math.min(s.metrics.totalSensors, s.metrics.sensorsOnline),
+        },
+      };
+    }),
 
     acknowledgeAlert: (id) =>
       set((s) => ({

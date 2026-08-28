@@ -489,6 +489,98 @@ function EmergencyPosterStubCard({ data }: { data: Record<string, unknown> }) {
   );
 }
 
+// ─── Incident Tactical Action Playbook Card (Human-in-the-Loop) ──────────────
+
+interface PlaybookStep {
+  id: string;
+  title: string;
+  detail: string;
+  done: boolean;
+}
+
+function IncidentPlaybookCard({ data }: { data: {
+  playbookId?: string;
+  incidentTitle?: string;
+  location?: string;
+  steps?: PlaybookStep[];
+} }) {
+  const [authorized, setAuthorized] = useState(false);
+  const steps: PlaybookStep[] = data.steps || [
+    { id: 's1', title: 'Dispatch Tactical Squad Alpha', detail: 'Cpt. Alex Rivera (Fire & SCBA) · 140m / 45s ETA', done: authorized },
+    { id: 's2', title: 'Unlock Exit Doors B & C', detail: 'Disengage electromagnetic holdbacks on East Corridor', done: authorized },
+    { id: 's3', title: 'Broadcast Student Push Alert', detail: 'Direct occupants to Assembly Point Alpha (North Quad)', done: authorized },
+    { id: 's4', title: 'Pre-position Medical ALS Unit', detail: 'Dr. Sarah Mills staging at North Quad Gate', done: authorized },
+  ];
+
+  const handleAuthorize = () => {
+    setAuthorized(true);
+  };
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, scale: 0.95 }}
+      animate={{ opacity: 1, scale: 1 }}
+      className="rounded-2xl p-4 border border-[rgba(20,241,217,0.35)] bg-gradient-to-br from-[#14F1D9]/[0.08] via-[#070B12] to-transparent shadow-xl space-y-3 mt-2"
+    >
+      <div className="flex items-center justify-between pb-2 border-b border-white/[0.08]">
+        <div className="flex items-center gap-2">
+          <div className="w-6 h-6 rounded-lg bg-[#14F1D9]/20 border border-[#14F1D9]/40 flex items-center justify-center text-[#14F1D9]">
+            <Zap className="w-3.5 h-3.5" />
+          </div>
+          <div>
+            <h4 className="text-xs font-bold text-[#F0F4FF]">
+              Autonomous Incident Action Playbook
+            </h4>
+            <p className="text-[10px] text-[#8B9AB4]">
+              Target: {data.location || 'Science Block B – Lab 302'}
+            </p>
+          </div>
+        </div>
+        <span className={`text-[9px] font-mono font-bold px-2 py-0.5 rounded-full uppercase ${
+          authorized
+            ? 'bg-[#22D3A5]/20 text-[#22D3A5] border border-[#22D3A5]/40'
+            : 'bg-[#FFB347]/20 text-[#FFB347] border border-[#FFB347]/40 animate-pulse'
+        }`}>
+          {authorized ? 'AUTHORIZED & EXECUTING' : 'NEEDS AUTHORIZATION'}
+        </span>
+      </div>
+
+      <div className="space-y-2">
+        {steps.map((st, i) => (
+          <div key={st.id} className="flex items-start gap-2.5 p-2 rounded-xl bg-white/[0.02] border border-white/[0.04]">
+            <div className={`w-4 h-4 rounded-full flex items-center justify-center text-[9px] font-bold mt-0.5 ${
+              authorized || st.done
+                ? 'bg-[#22D3A5] text-[#070B12]'
+                : 'bg-white/10 text-[#8B9AB4]'
+            }`}>
+              {authorized || st.done ? '✓' : i + 1}
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="text-xs font-bold text-[#F0F4FF]">{st.title}</p>
+              <p className="text-[10px] text-[#8B9AB4] leading-tight">{st.detail}</p>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      <div className="pt-2 border-t border-white/[0.06]">
+        <button
+          onClick={handleAuthorize}
+          disabled={authorized}
+          className={`w-full py-2.5 px-3 rounded-xl text-xs font-mono font-black uppercase tracking-wider flex items-center justify-center gap-2 transition-all cursor-pointer ${
+            authorized
+              ? 'bg-[#22D3A5]/20 text-[#22D3A5] border border-[#22D3A5]/40 cursor-default'
+              : 'bg-gradient-to-r from-[#14F1D9] to-[#22D3A5] text-[#070B12] shadow-[0_0_20px_rgba(20,241,217,0.4)] hover:brightness-110'
+          }`}
+        >
+          <CheckCircle2 className="w-4 h-4" />
+          <span>{authorized ? 'Playbook Protocols Dispatched ✓' : 'Authorize Dispatch & Protocols'}</span>
+        </button>
+      </div>
+    </motion.div>
+  );
+}
+
 // ─── Main Renderer ────────────────────────────────────────────────────────────
 
 export function ResponseCards({ cards }: { cards: ResponseCard[] }) {
@@ -496,6 +588,8 @@ export function ResponseCards({ cards }: { cards: ResponseCard[] }) {
     <div className="space-y-2">
       {cards.map((card, i) => {
         switch (card.type) {
+          case 'incident_playbook' as any:
+            return <IncidentPlaybookCard key={i} data={card.data as any} />;
           case 'metric_stats':
             return <MetricStatsCard key={i} data={card.data as { stats: StatItem[] }} />;
           case 'incident_summary':

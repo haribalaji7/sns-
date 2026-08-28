@@ -1,5 +1,5 @@
 // ─── Campus A* Shortest Safe Pathfinding Engine ──────────────────────────────
-// Computes optimal hazard-aware evacuation routes around danger zones and blocked roads
+// Computes optimal hazard-aware evacuation routes around danger zones, blast radii, and blocked roads
 
 export interface MapPoint {
   id: string;
@@ -97,16 +97,10 @@ export const CAMPUS_EDGES: MapEdge[] = [
   { from: 'N-LIB-MAIN', to: 'N-SOUTH-ALLEY', distance: 210 },
 ];
 
-/**
- * Calculates Euclidean distance between two map coordinates
- */
 function euclideanDistance(a: MapPoint, b: MapPoint): number {
   return Math.hypot(a.x - b.x, a.y - b.y);
 }
 
-/**
- * Checks if a point or edge line segment is inside a hazard danger radius
- */
 function isNearHazard(point: MapPoint, hazards: HazardZone[]): boolean {
   for (const h of hazards) {
     const dist = Math.hypot(point.x - h.x, point.y - h.y);
@@ -122,11 +116,12 @@ export interface AStarResult {
   distance: number;
   safeExit: MapPoint;
   steps: { instruction: string; distanceMeters: number }[];
+  isReroutedAroundBlast?: boolean;
 }
 
 /**
  * A* Search Algorithm: Computes the shortest hazard-free evacuation path
- * from a start node to the closest safe assembly exit.
+ * from a start node to the closest safe assembly exit, dynamically avoiding active blast radii.
  */
 export function findShortestSafePath(
   startNodeId: string,
@@ -140,29 +135,48 @@ export function findShortestSafePath(
   const startNode = nodeMap.get(startNodeId);
   if (!startNode) return null;
 
-  // Build adjacency list with dynamic obstacle cost penalty
-  const adj = new Map<string, { targetId: string; baseDist: number; edgeKey: string }[]>();
-  CAMPUS_NODES.forEach((n) => adj.set(n.id, []));
+  // Build Adjacency Graph
+  const adjacency = new Map<string, Array<{ to: string; distance: number }>>();
+  CAMPUS_NODES.forEach((n) => adjacency.set(n.id, []));
 
   CAMPUS_EDGES.forEach((e) => {
     const edgeKey1 = `${e.from}->${e.to}`;
     const edgeKey2 = `${e.to}->${e.from}`;
-    adj.get(e.from)?.push({ targetId: e.to, baseDist: e.distance, edgeKey: edgeKey1 });
-    adj.get(e.to)?.push({ targetId: e.from, baseDist: e.distance, edgeKey: edgeKey2 });
+
+    if (blockedEdges.includes(edgeKey1) || blockedEdges.includes(edgeKey2)) {
+      return;
+    }
+
+    const fromNode = nodeMap.get(e.from);
+    const toNode = nodeMap.get(e.to);
+
+    if (!fromNode || !toNode) return;
+
+    // Apply severe penalty if node is inside or near dynamic hazard/blast zone
+    const fromNear = isNearHazard(fromNode, hazards);
+    const toNear = isNearHazard(toNode, hazards);
+
+    let weightMultiplier = 1.0;
+    if (fromNear || toNear) {
+      weightMultiplier = 25.0; // Dynamic hazard penalty
+    }
+
+    adjacency.get(e.from)?.push({ to: e.to, distance: e.distance * weightMultiplier });
+    adjacency.get(e.to)?.push({ to: e.from, distance: e.distance * weightMultiplier });
   });
 
-  // Candidate safe exits
-  const safeExits = customDestinationId
-    ? CAMPUS_NODES.filter((n) => n.id === customDestinationId)
+  // Identify Safe Assembly Exits
+  const targetExits = customDestinationId
+    ? [nodeMap.get(customDestinationId)!].filter(Boolean)
     : CAMPUS_NODES.filter((n) => n.isSafeExit && !isNearHazard(n, hazards));
 
-  if (safeExits.length === 0) return null;
+  if (targetExits.length === 0) return null;
 
   let bestResult: AStarResult | null = null;
-  let minCost = Infinity;
+  let minDistance = Infinity;
 
-  // Run A* towards candidate safe exits and pick the closest optimal path
-  for (const targetExit of safeExits) {
+  // Run A* towards each safe exit candidate
+  for (const exit of targetExits) {
     const openSet = new Set<string>([startNodeId]);
     const cameFrom = new Map<string, string>();
 
@@ -172,80 +186,73 @@ export function findShortestSafePath(
 
     const fScore = new Map<string, number>();
     CAMPUS_NODES.forEach((n) => fScore.set(n.id, Infinity));
-    fScore.set(startNodeId, euclideanDistance(startNode, targetExit));
+    fScore.set(startNodeId, euclideanDistance(startNode, exit));
 
     while (openSet.size > 0) {
-      // Find node with lowest fScore in openSet
-      let currentId = '';
+      let currentId: string | null = null;
       let lowestF = Infinity;
-      for (const id of openSet) {
+
+      openSet.forEach((id) => {
         const f = fScore.get(id) ?? Infinity;
         if (f < lowestF) {
           lowestF = f;
           currentId = id;
         }
-      }
+      });
 
-      if (currentId === targetExit.id) {
+      if (!currentId) break;
+
+      if (currentId === exit.id) {
         // Reconstruct path
-        const path: MapPoint[] = [];
+        const reconstructed: MapPoint[] = [];
         let curr: string | undefined = currentId;
         while (curr) {
-          const p = nodeMap.get(curr);
-          if (p) path.unshift(p);
+          reconstructed.unshift(nodeMap.get(curr)!);
           curr = cameFrom.get(curr);
         }
 
-        const totalDist = gScore.get(targetExit.id) ?? 0;
-        if (totalDist < minCost) {
-          minCost = totalDist;
+        const totalDist = gScore.get(exit.id) ?? 0;
+        if (totalDist < minDistance) {
+          minDistance = totalDist;
 
-          // Generate turn-by-turn guidance
-          const steps = path.slice(0, -1).map((node, i) => {
-            const nextNode = path[i + 1];
-            const dist = Math.round(euclideanDistance(node, nextNode) * 0.8);
-            return {
-              instruction: `Proceed from ${node.name} toward ${nextNode.name}`,
-              distanceMeters: dist,
-            };
-          });
+          // Generate step-by-step guidance
+          const steps: { instruction: string; distanceMeters: number }[] = [];
+          for (let i = 0; i < reconstructed.length - 1; i++) {
+            const from = reconstructed[i];
+            const to = reconstructed[i + 1];
+            const d = Math.round(euclideanDistance(from, to));
+            steps.push({
+              instruction: `Proceed from ${from.name} toward ${to.name}`,
+              distanceMeters: d,
+            });
+          }
 
           bestResult = {
-            path,
-            distance: totalDist,
-            safeExit: targetExit,
+            path: reconstructed,
+            distance: Math.round(totalDist),
+            safeExit: exit,
             steps,
+            isReroutedAroundBlast: hazards.length > 0,
           };
         }
         break;
       }
 
       openSet.delete(currentId);
-      const currentNode = nodeMap.get(currentId)!;
-      const neighbors = adj.get(currentId) || [];
+      const neighbors = adjacency.get(currentId) || [];
 
       for (const neighbor of neighbors) {
-        const neighborNode = nodeMap.get(neighbor.targetId)!;
+        const tentativeG = (gScore.get(currentId) ?? Infinity) + neighbor.distance;
 
-        // Check if edge is explicitly blocked
-        if (blockedEdges.includes(neighbor.edgeKey) || blockedEdges.includes(`${neighbor.targetId}->${currentId}`)) {
-          continue;
-        }
+        if (tentativeG < (gScore.get(neighbor.to) ?? Infinity)) {
+          cameFrom.set(neighbor.to, currentId);
+          gScore.set(neighbor.to, tentativeG);
 
-        // Check hazard proximity and add heavy penalty or discard
-        let penalty = 0;
-        if (isNearHazard(neighborNode, hazards)) {
-          penalty = 2000; // Severe cost penalty for entering danger radius
-        }
+          const neighborNode = nodeMap.get(neighbor.to)!;
+          const h = euclideanDistance(neighborNode, exit);
+          fScore.set(neighbor.to, tentativeG + h);
 
-        const tentativeG = (gScore.get(currentId) ?? Infinity) + neighbor.baseDist + penalty;
-
-        if (tentativeG < (gScore.get(neighbor.targetId) ?? Infinity)) {
-          cameFrom.set(neighbor.targetId, currentId);
-          gScore.set(neighbor.targetId, tentativeG);
-          const h = euclideanDistance(neighborNode, targetExit);
-          fScore.set(neighbor.targetId, tentativeG + h);
-          openSet.add(neighbor.targetId);
+          openSet.add(neighbor.to);
         }
       }
     }

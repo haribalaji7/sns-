@@ -58,6 +58,27 @@ export function RiskPredictorStudio() {
   });
 
   const [executedActions, setExecutedActions] = useState<Record<string, boolean>>({});
+  const [isLiveMode, setIsLiveMode] = useState(false);
+
+  // Live IoT Simulation Effect
+  React.useEffect(() => {
+    if (!isLiveMode) return;
+    
+    const interval = setInterval(() => {
+      setInputs((prev) => {
+        // Simulate live crowd movement via IoT counters
+        const occDelta = Math.floor(Math.random() * 25) - 10;
+        const nextOcc = Math.max(0, Math.min(600, prev.occupancy + occDelta));
+        
+        return {
+          ...prev,
+          occupancy: nextOcc,
+        };
+      });
+    }, 1500);
+    
+    return () => clearInterval(interval);
+  }, [isLiveMode]);
 
   // Compute live inference
   const prediction: MLRiskPredictionResult = useMemo(() => {
@@ -97,9 +118,25 @@ export function RiskPredictorStudio() {
                 <p className="text-[9px] font-mono text-[#22D3A5]">5,000 Trained Samples · 97.4% Precision</p>
               </div>
             </div>
-            <span className="text-[9px] font-mono text-[#14F1D9] bg-[#14F1D9]/15 px-2 py-0.5 rounded border border-[#14F1D9]/30">
-              4ms Latency
-            </span>
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => {
+                  soundEffects.playClick();
+                  setIsLiveMode(!isLiveMode);
+                }}
+                className={`flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-bold font-mono transition-all border ${
+                  isLiveMode 
+                    ? 'bg-[#FF4D6D]/20 text-[#FF4D6D] border-[#FF4D6D]/50 shadow-[0_0_15px_rgba(255,77,109,0.3)] animate-pulse'
+                    : 'bg-white/[0.05] text-[#8B9AB4] border-white/[0.1] hover:bg-white/[0.1]'
+                }`}
+              >
+                <Activity className="w-3 h-3" />
+                {isLiveMode ? 'LIVE IOT SYNC' : 'MANUAL'}
+              </button>
+              <span className="text-[9px] font-mono text-[#14F1D9] bg-[#14F1D9]/15 px-2 py-0.5 rounded border border-[#14F1D9]/30">
+                4ms Latency
+              </span>
+            </div>
           </div>
 
           {/* Interactive Sliders & Pickers */}
@@ -152,8 +189,9 @@ export function RiskPredictorStudio() {
                 min={0}
                 max={600}
                 value={inputs.occupancy}
+                disabled={isLiveMode}
                 onChange={(e) => setInputs({ ...inputs, occupancy: Number(e.target.value) })}
-                className="w-full accent-[#FFB347] cursor-pointer"
+                className={`w-full accent-[#FFB347] ${isLiveMode ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
               />
             </div>
 

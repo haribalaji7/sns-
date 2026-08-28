@@ -11,7 +11,7 @@ interface MapModeSwitcherProps {
   className?: string;
 }
 
-const MODES: { id: MapMode; label: string; icon: React.ElementType }[] = [
+const MODES: { id: MapMode; label: string; icon: any }[] = [
   { id: 'roadmap', label: 'MAP', icon: MapIcon },
   { id: 'satellite', label: 'SATELLITE', icon: Globe },
   { id: 'hybrid', label: 'HYBRID', icon: Layers },

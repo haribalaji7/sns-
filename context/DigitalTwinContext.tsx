@@ -12,6 +12,8 @@ interface DigitalTwinState {
   showBuildings: boolean;
   showIncidents: boolean;
   showResponders: boolean;
+  emergencyMode: boolean;
+  quality: 'high' | 'medium' | 'low' | 'auto';
 }
 
 const defaultState: DigitalTwinState = {
@@ -24,6 +26,8 @@ const defaultState: DigitalTwinState = {
   showBuildings: true,
   showIncidents: true,
   showResponders: true,
+  emergencyMode: false,
+  quality: 'auto',
 };
 
 const DigitalTwinContext = createContext<{
@@ -39,9 +43,11 @@ export const DigitalTwinProvider = ({ children }: { children: ReactNode }) => {
     const incidentsChannel = supabase
       .channel('public:incidents')
       .on('postgres_changes', { event: '*', schema: 'public', table: 'incidents' }, (payload) => {
+        const newRecord = payload.new as any;
+        if (!newRecord?.id) return;
         setState((prev) => {
-          const updated = prev.incidents.filter((i) => i.id !== payload.new.id);
-          updated.push(payload.new as Incident);
+          const updated = prev.incidents.filter((i) => i.id !== newRecord.id);
+          updated.push(newRecord as Incident);
           return { ...prev, incidents: updated };
         });
       })
@@ -50,9 +56,11 @@ export const DigitalTwinProvider = ({ children }: { children: ReactNode }) => {
     const respondersChannel = supabase
       .channel('public:responders')
       .on('postgres_changes', { event: '*', schema: 'public', table: 'responders' }, (payload) => {
+        const newRecord = payload.new as any;
+        if (!newRecord?.id) return;
         setState((prev) => {
-          const updated = prev.responders.filter((r) => r.id !== payload.new.id);
-          updated.push(payload.new as Responder);
+          const updated = prev.responders.filter((r) => r.id !== newRecord.id);
+          updated.push(newRecord as Responder);
           return { ...prev, responders: updated };
         });
       })
@@ -61,9 +69,11 @@ export const DigitalTwinProvider = ({ children }: { children: ReactNode }) => {
     const crowdChannel = supabase
       .channel('public:crowd')
       .on('postgres_changes', { event: '*', schema: 'public', table: 'crowd' }, (payload) => {
+        const newRecord = payload.new as any;
+        if (!newRecord?.id) return;
         setState((prev) => {
-          const updated = prev.crowd.filter((c) => c.id !== payload.new.id);
-          updated.push(payload.new as CrowdPoint);
+          const updated = prev.crowd.filter((c) => c.id !== newRecord.id);
+          updated.push(newRecord as CrowdPoint);
           return { ...prev, crowd: updated };
         });
       })

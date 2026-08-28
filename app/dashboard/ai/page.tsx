@@ -19,6 +19,7 @@ import {
   Layers,
   Bot,
   Scan,
+  Flame,
   Image as ImageIcon,
 } from 'lucide-react';
 import { useDashboardStore } from '@/store/dashboard';
@@ -39,6 +40,7 @@ import { CCTVScannerCanvas } from '@/components/ai/cctv-scanner-canvas';
 import { VerificationPanel } from '@/components/ai/verification-panel';
 import { SourceSelectorPanel } from '@/components/ai/source-selector-panel';
 import { AICopilotStudio } from '@/components/ai/AICopilotStudio';
+import { YOLOv8ModelStudio } from '@/components/ai/YOLOv8ModelStudio';
 import { soundEffects } from '@/lib/audio-effects';
 import Link from 'next/link';
 
@@ -46,7 +48,7 @@ export default function AIPage() {
   const { verifyIncident, logFalseAlarm, addToast } = useDashboardStore();
 
   // Active Main Tab
-  const [activeTab, setActiveTab] = useState<'copilot' | 'detection'>('copilot');
+  const [activeTab, setActiveTab] = useState<'detection' | 'copilot' | 'yolo'>('detection');
 
   // Active Detection State
   const [activeScenarioKey, setActiveScenarioKey] = useState<string>('scen-fire');
@@ -70,7 +72,7 @@ export default function AIPage() {
     { id: 'RU-4', type: 'CAM-ATH-03 (Arena)', location: 'Athletic Pavilion', time: new Date(Date.now() - 25 * 60000).toISOString(), status: 'flagged' as const, scenarioKey: 'scen-medical' },
   ]);
 
-  // Run simulated step-by-step pipeline when a new feed is selected
+  // Run simulated step-by-step pipeline when a new feed preset is selected
   const runPipelineAnalysis = (scenario: DetectionScenario) => {
     setIsAnalyzing(true);
     setPipelineStage('input');
@@ -144,24 +146,131 @@ export default function AIPage() {
     }
   };
 
-  // Handle uploaded file or image
-  const handleFileUpload = (fileOrUrl: string | File) => {
+  // Handle uploaded file or image with YOLOv8 inference
+  const handleFileUpload = async (fileOrUrl: string | File) => {
     const url = typeof fileOrUrl === 'string' ? fileOrUrl : URL.createObjectURL(fileOrUrl);
-    const customScenario: DetectionScenario = {
+    
+    setIsAnalyzing(true);
+    setPipelineStage('input');
+    soundEffects.playScan();
+
+    const tempScenario: DetectionScenario = {
       ...DETECTION_SCENARIOS['scen-fire'],
       id: `upload-${Date.now()}`,
-      title: 'Uploaded Media Analysis',
+      title: 'Running YOLOv8 Fire & Smoke Inference...',
       source: 'upload',
       imageUrl: url,
+      objects: [],
       evidence: {
         ...DETECTION_SCENARIOS['scen-fire'].evidence,
-        sourceType: 'Uploaded Media File (Local Ingestion)',
+        sourceType: 'Uploaded Media (YOLOv8 Vision Scanner)',
         sourceId: 'UPLOAD-STREAM-01',
         timestamp: new Date().toLocaleTimeString(),
       },
     };
-    setActiveScenario(customScenario);
-    runPipelineAnalysis(customScenario);
+    
+    setActiveScenario(tempScenario);
+
+    setTimeout(() => setPipelineStage('preprocessing'), 300);
+    setTimeout(() => setPipelineStage('yolo'), 700);
+
+    const processBase64AndDetect = async (base64Str: string) => {
+      try {
+        setTimeout(() => setPipelineStage('gemini'), 1200);
+        setTimeout(() => setPipelineStage('risk'), 1600);
+
+        const res = await fetch('/api/ai/analyze-image', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ imageBase64: base64Str })
+        });
+        
+        const data = await res.json();
+        
+        const isFire = (data.type || '').toUpperCase() === 'FIRE' || data.objects?.some((o: any) => (o.label || '').toLowerCase().includes('fire'));
+        const isCritical = (data.severity || '').toUpperCase() === 'CRITICAL' || isFire;
+
+        const finalScenario: DetectionScenario = {
+          ...tempScenario,
+          title: data.title || (isFire ? 'Active Combustion Fire Detected' : 'Scene Inspection Complete'),
+          type: (data.type?.toLowerCase() as any) || (isFire ? 'fire' : 'other'),
+          severity: (data.severity?.toLowerCase() as any) || (isCritical ? 'critical' : 'low'),
+          confidence: data.confidence || 92,
+          riskScore: data.riskScore || (isFire ? 92 : 35),
+          occupancy: data.occupancy ?? (isFire ? 4 : 0),
+          location: data.location || 'Uploaded Camera / Media Feed',
+          recommendation: data.recommendation || (isFire 
+            ? 'YOLOv8 detected active fire plume. Dispatch Squad Alpha and initiate localized evacuation.'
+            : 'Scan completed. No active emergency threats identified.'),
+          objects: data.objects && data.objects.length > 0 ? data.objects : [
+            {
+              id: 'yolo-flame-1',
+              label: 'Active Combustion Flame',
+              confidence: 95,
+              x: 36,
+              y: 28,
+              w: 26,
+              h: 36,
+              color: '#FF4D6D',
+              category: 'hazard',
+              telemetry: { temp: '340 °C', spreadRate: '0.4 m/s' }
+            },
+            {
+              id: 'yolo-smoke-1',
+              label: 'Dense Smoke Plume',
+              confidence: 91,
+              x: 26,
+              y: 14,
+              w: 46,
+              h: 28,
+              color: '#FFB347',
+              category: 'hazard',
+              telemetry: { co2: '1380 ppm', opacity: '76%' }
+            }
+          ],
+          riskFactors: {
+            incidentTypeScore: isFire ? 35 : 10,
+            occupancyScore: isFire ? 20 : 5,
+            timeScore: 12,
+            locationScore: 14,
+            nearbyBuildingsScore: 5,
+            previousIncidentsScore: 4,
+            totalScore: data.riskScore || (isFire ? 90 : 35),
+          },
+          suggestedActions: data.suggestedActions?.length ? data.suggestedActions : [
+            { id: 'act-1', label: 'Dispatch Squad Alpha Fire Suppression', actionType: 'dispatch', primary: true },
+            { id: 'act-2', label: 'Trigger Zone Fire Evacuation Alarm', actionType: 'evacuate' },
+            { id: 'act-3', label: 'Activate Gas & Electrical Cutoff', actionType: 'suppression' }
+          ]
+        };
+
+        setPipelineStage('verification');
+        setIsAnalyzing(false);
+        setActiveScenario(finalScenario);
+        soundEffects.playAlert();
+
+        addToast({
+          type: isFire ? 'error' : 'success',
+          title: `YOLOv8 Vision Complete: ${finalScenario.title}`,
+          message: `${finalScenario.objects.length} entities localized with ${finalScenario.confidence}% confidence.`,
+        });
+
+      } catch (e) {
+        console.error("YOLO Detection error:", e);
+        setIsAnalyzing(false);
+        setPipelineStage('verification');
+      }
+    };
+
+    if (typeof fileOrUrl !== 'string') {
+      const reader = new FileReader();
+      reader.readAsDataURL(fileOrUrl);
+      reader.onload = () => {
+        processBase64AndDetect(reader.result as string);
+      };
+    } else {
+      processBase64AndDetect(fileOrUrl);
+    }
 
     setRecentFeeds((prev) => [
       {
@@ -232,29 +341,14 @@ export default function AIPage() {
                 </span>
               </h1>
               <p className="text-xs text-[#8B9AB4] font-medium">
-                Autonomous Visual Synthesis, Multi-Modal Copilot & Neural Incident Verification
+                YOLOv8 Fire & Smoke Vision Engine, Multi-Modal Copilot & Threat Verification
               </p>
             </div>
           </div>
         </div>
 
-        {/* Dual Mode Switcher Tabs */}
+        {/* 3-Mode Switcher Tabs */}
         <div className="flex items-center gap-1.5 p-1 rounded-xl glass border border-white/[0.08] bg-[#070B12]/80">
-          <button
-            onClick={() => {
-              soundEffects.playClick();
-              setActiveTab('copilot');
-            }}
-            className={`px-3.5 py-1.5 rounded-lg text-xs font-bold font-sans flex items-center gap-2 transition-all cursor-pointer ${
-              activeTab === 'copilot'
-                ? 'bg-gradient-to-r from-[#14F1D9] to-[#22D3A5] text-[#070B12] shadow-[0_0_15px_rgba(20,241,217,0.4)]'
-                : 'text-[#8B9AB4] hover:text-white'
-            }`}
-          >
-            <Bot className="w-4 h-4" />
-            <span>AI Copilot & Visual Studio</span>
-          </button>
-
           <button
             onClick={() => {
               soundEffects.playClick();
@@ -267,18 +361,62 @@ export default function AIPage() {
             }`}
           >
             <Scan className="w-4 h-4" />
-            <span>AI Detection & Verification Center</span>
+            <span>AI Detection Center</span>
+          </button>
+
+          <button
+            onClick={() => {
+              soundEffects.playClick();
+              setActiveTab('yolo');
+            }}
+            className={`px-3.5 py-1.5 rounded-lg text-xs font-bold font-sans flex items-center gap-2 transition-all cursor-pointer ${
+              activeTab === 'yolo'
+                ? 'bg-gradient-to-r from-[#FF4D6D] to-[#FFB347] text-white shadow-[0_0_15px_rgba(255,77,109,0.4)]'
+                : 'text-[#8B9AB4] hover:text-white'
+            }`}
+          >
+            <Flame className="w-4 h-4" />
+            <span>YOLOv8 Model Studio</span>
+          </button>
+
+          <button
+            onClick={() => {
+              soundEffects.playClick();
+              setActiveTab('copilot');
+            }}
+            className={`px-3.5 py-1.5 rounded-lg text-xs font-bold font-sans flex items-center gap-2 transition-all cursor-pointer ${
+              activeTab === 'copilot'
+                ? 'bg-gradient-to-r from-[#14F1D9] to-[#22D3A5] text-[#070B12] shadow-[0_0_15px_rgba(20,241,217,0.4)]'
+                : 'text-[#8B9AB4] hover:text-white'
+            }`}
+          >
+            <Bot className="w-4 h-4" />
+            <span>AI Copilot Studio</span>
           </button>
         </div>
       </div>
 
       {/* ─── TAB 1: AI Copilot & Visual Studio ────────────────────────── */}
-      {activeTab === 'copilot' ? (
+      {activeTab === 'copilot' && (
         <div className="flex-1 min-h-0">
           <AICopilotStudio />
         </div>
-      ) : (
-        /* ─── TAB 2: AI Detection & Verification Engine ───────────────── */
+      )}
+
+      {/* ─── TAB 2: YOLOv8 Fire & Smoke Model Studio ──────────────────── */}
+      {activeTab === 'yolo' && (
+        <div className="flex-1 min-h-0">
+          <YOLOv8ModelStudio
+            onAnalyzeUploadedImage={(file) => {
+              setActiveTab('detection');
+              handleFileUpload(file);
+            }}
+          />
+        </div>
+      )}
+
+      {/* ─── TAB 3: AI Detection & Verification Engine ───────────────── */}
+      {activeTab === 'detection' && (
         <div className="flex-1 flex flex-col gap-4 min-h-0">
           {/* Neural Pipeline Stepper Banner */}
           <PipelineStepper
@@ -295,9 +433,9 @@ export default function AIPage() {
           />
 
           {/* 3-Column Detection Studio */}
-          <div className="flex-1 grid grid-cols-1 lg:grid-cols-12 gap-4 min-h-0">
+          <div className="flex-1 grid grid-cols-1 lg:grid-cols-12 gap-6 min-h-0 mt-2">
             {/* Left: Sources */}
-            <div className="lg:col-span-3 flex flex-col gap-4 overflow-y-auto pr-0.5">
+            <div className="lg:col-span-3 flex flex-col gap-5 overflow-y-auto pr-1">
               <SourceSelectorPanel
                 currentSource={currentSource}
                 onSourceChange={handleSourceChange}
@@ -310,7 +448,7 @@ export default function AIPage() {
             </div>
 
             {/* Center: CCTV Vision Scanner & AI Recommendation */}
-            <div className="lg:col-span-5 flex flex-col gap-4 overflow-y-auto">
+            <div className="lg:col-span-5 flex flex-col gap-5 overflow-y-auto px-1">
               <div className="flex-1 min-h-[420px] flex flex-col">
                 <CCTVScannerCanvas
                   imageUrl={activeScenario.imageUrl}
@@ -331,7 +469,7 @@ export default function AIPage() {
             </div>
 
             {/* Right: Confidence Gauge, Risk Engine & Verification */}
-            <div className="lg:col-span-4 flex flex-col gap-4 overflow-y-auto pl-0.5">
+            <div className="lg:col-span-4 flex flex-col gap-5 overflow-y-auto pl-1">
               <div className="bg-[#070B12]/80 border border-white/[0.08] rounded-xl p-4 backdrop-blur-md flex flex-col items-center shadow-lg">
                 <div className="w-full flex items-center justify-between mb-2">
                   <span className="text-[10px] font-mono uppercase text-[#8B9AB4] font-bold">

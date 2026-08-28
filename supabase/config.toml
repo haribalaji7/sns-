@@ -1,0 +1,46 @@
+# Supabase Local CLI Configuration
+project_id = "campusshield-ai"
+
+[api]
+enabled = true
+port = 54321
+schemas = ["public", "storage", "graphql_public"]
+extra_search_path = ["public", "extensions"]
+max_rows = 1000
+
+[db]
+port = 54322
+shadow_port = 54320
+major_version = 15
+
+[db.pooler]
+enabled = false
+port = 54329
+pool_mode = "transaction"
+default_pool_size = 20
+max_client_conn = 100
+
+[realtime]
+enabled = true
+port = 54323
+ip_version = "ipv4"
+
+[studio]
+enabled = true
+port = 54324
+
+[auth]
+enabled = true
+site_url = "http://localhost:3002"
+additional_redirect_urls = ["https://localhost:3002"]
+jwt_expiry = 3600
+enable_signup = true
+
+[auth.email]
+enable_signup = true
+double_positive_signup = false
+enable_confirmations = false
+
+[storage]
+enabled = true
+file_size_limit = "50MiB"

@@ -1,0 +1,65 @@
+﻿export const buildings = [
+  {
+    id: 'science',
+    name: 'Science Block',
+    position: { lat: 37.4221, lng: -122.0841 },
+    height: 30,
+    health: 'safe', // safe | warning | critical | medical
+  },
+  {
+    id: 'engineering',
+    name: 'Engineering Block',
+    position: { lat: 37.4225, lng: -122.0845 },
+    height: 35,
+    health: 'warning',
+  },
+  {
+    id: 'library',
+    name: 'Library',
+    position: { lat: 37.4230, lng: -122.0835 },
+    height: 28,
+    health: 'safe',
+  },
+  {
+    id: 'hostelA',
+    name: 'Hostel A',
+    position: { lat: 37.4240, lng: -122.0840 },
+    height: 20,
+    health: 'medical',
+  },
+  {
+    id: 'hostelB',
+    name: 'Hostel B',
+    position: { lat: 37.4245, lng: -122.0838 },
+    height: 22,
+    health: 'safe',
+  },
+  {
+    id: 'auditorium',
+    name: 'Auditorium',
+    position: { lat: 37.4250, lng: -122.0842 },
+    height: 25,
+    health: 'critical',
+  },
+  {
+    id: 'cafeteria',
+    name: 'Cafeteria',
+    position: { lat: 37.4255, lng: -122.0839 },
+    height: 18,
+    health: 'safe',
+  },
+  {
+    id: 'parking',
+    name: 'Parking',
+    position: { lat: 37.4260, lng: -122.0845 },
+    height: 12,
+    health: 'safe',
+  },
+  {
+    id: 'medical',
+    name: 'Medical Center',
+    position: { lat: 37.4265, lng: -122.0840 },
+    height: 24,
+    health: 'medical',
+  },
+];

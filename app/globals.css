@@ -1,0 +1,169 @@
+@import "tailwindcss";
+
+/* ─── CampusShield AI — Design System Tokens ─────────────────────────────── */
+:root {
+  --bg-primary:     #070B12;
+  --bg-surface:     rgba(255, 255, 255, 0.05);
+  --glass-blur:     18px;
+  --border-glass:   rgba(20, 241, 217, 0.18);
+  --border-subtle:  rgba(255, 255, 255, 0.08);
+  --color-primary:  #14F1D9;
+  --color-purple:   #7C5CFF;
+  --color-red:      #FF4D6D;
+  --color-amber:    #FFB347;
+  --color-green:    #22D3A5;
+  --text-primary:   #F0F4FF;
+  --text-secondary: #8B9AB4;
+  --text-muted:     #4A5568;
+
+  /* Glow shadows */
+  --glow-primary:  0 0 20px rgba(20, 241, 217, 0.25);
+  --glow-purple:   0 0 20px rgba(124, 92, 255, 0.30);
+  --glow-red:      0 0 20px rgba(255, 77, 109, 0.30);
+}
+
+/* ─── Base Reset ─────────────────────────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; }
+
+html, body {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+  font-family: 'Inter', 'SF Pro Display', system-ui, -apple-system, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  overflow-x: hidden;
+}
+
+/* ─── Scrollbar ──────────────────────────────────────────────────────────── */
+::-webkit-scrollbar { width: 4px; height: 4px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb {
+  background: rgba(20, 241, 217, 0.25);
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(20, 241, 217, 0.5);
+}
+
+/* ─── Glass Surface ──────────────────────────────────────────────────────── */
+.glass {
+  background: var(--bg-surface);
+  backdrop-filter: blur(var(--glass-blur));
+  -webkit-backdrop-filter: blur(var(--glass-blur));
+  border: 1px solid var(--border-glass);
+}
+
+.glass-subtle {
+  background: rgba(255, 255, 255, 0.03);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid var(--border-subtle);
+}
+
+/* ─── Glow utilities ─────────────────────────────────────────────────────── */
+.glow-primary { box-shadow: var(--glow-primary); }
+.glow-purple  { box-shadow: var(--glow-purple); }
+.glow-red     { box-shadow: var(--glow-red); }
+
+.text-glow-primary { text-shadow: 0 0 12px rgba(20, 241, 217, 0.5); }
+.text-glow-purple  { text-shadow: 0 0 12px rgba(124, 92, 255, 0.5); }
+
+/* ─── Gradient text ──────────────────────────────────────────────────────── */
+.gradient-text-primary {
+  background: linear-gradient(135deg, #14F1D9, #7C5CFF);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.gradient-text-warm {
+  background: linear-gradient(135deg, #FFB347, #FF4D6D);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* ─── Animations ─────────────────────────────────────────────────────────── */
+@keyframes pulse-ring {
+  0%   { transform: scale(1);   opacity: 1; }
+  100% { transform: scale(2.2); opacity: 0; }
+}
+
+@keyframes pulse-dot {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.4; }
+}
+
+@keyframes gradient-shift {
+  0%   { background-position: 0% 50%; }
+  50%  { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+@keyframes scan-line {
+  0%   { transform: translateY(-100%); }
+  100% { transform: translateY(100%); }
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0px); }
+  50%       { transform: translateY(-6px); }
+}
+
+@keyframes radar {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
+
+.animate-pulse-ring { animation: pulse-ring 1.5s cubic-bezier(0.215, 0.61, 0.355, 1) infinite; }
+.animate-pulse-dot  { animation: pulse-dot 2s ease-in-out infinite; }
+.animate-float      { animation: float 3s ease-in-out infinite; }
+.animate-radar      { animation: radar 4s linear infinite; }
+.animate-gradient   {
+  background-size: 200% 200%;
+  animation: gradient-shift 4s ease infinite;
+}
+
+/* ─── Live indicator ─────────────────────────────────────────────────────── */
+.live-indicator {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+}
+.live-indicator::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: currentColor;
+  animation: pulse-ring 1.5s cubic-bezier(0.215, 0.61, 0.355, 1) infinite;
+}
+
+/* ─── Grid background ────────────────────────────────────────────────────── */
+.bg-grid {
+  background-image:
+    linear-gradient(rgba(20, 241, 217, 0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(20, 241, 217, 0.04) 1px, transparent 1px);
+  background-size: 40px 40px;
+}
+
+/* ─── Neon border ────────────────────────────────────────────────────────── */
+.neon-border {
+  border: 1px solid var(--color-primary);
+  box-shadow: 0 0 8px rgba(20, 241, 217, 0.3), inset 0 0 8px rgba(20, 241, 217, 0.05);
+}
+.neon-border-purple {
+  border: 1px solid var(--color-purple);
+  box-shadow: 0 0 8px rgba(124, 92, 255, 0.3), inset 0 0 8px rgba(124, 92, 255, 0.05);
+}
+.neon-border-red {
+  border: 1px solid var(--color-red);
+  box-shadow: 0 0 8px rgba(255, 77, 109, 0.3), inset 0 0 8px rgba(255, 77, 109, 0.05);
+}
+
+/* ─── Map container ──────────────────────────────────────────────────────── */
+.mapboxgl-ctrl-logo,
+.mapboxgl-ctrl-attrib { display: none !important; }

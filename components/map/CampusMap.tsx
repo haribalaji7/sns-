@@ -100,7 +100,7 @@ export function CampusMap({
           }
         },
         (err) => {
-          console.warn('Browser GPS error, fallback to IP location:', err);
+          console.log('Resolving IP geolocation fallback (standard desktop behavior):', err.message);
           // 2. Fallback to IP Geolocation if browser GPS is unavailable on desktop
           fetch('https://ipapi.co/json/')
             .then((r) => r.json())

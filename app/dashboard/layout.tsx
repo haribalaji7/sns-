@@ -11,7 +11,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   const { copilotOpen, toggleCopilot } = useDashboardStore();
 
   return (
-    <div className="flex h-screen overflow-hidden bg-[#070B12] text-[#F0F4FF] relative">
+    <div className="flex h-screen overflow-hidden bg-background text-foreground relative transition-colors duration-300">
       {/* Ambient Cyber Lighting Layer */}
       <AmbientBackground />
 

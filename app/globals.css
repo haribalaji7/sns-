@@ -1,36 +1,104 @@
 @import "tailwindcss";
 
-/* ─── CampusShield AI — Design System Tokens ─────────────────────────────── */
+/* ─── CampusShield AI — Global Theme Tokens ─────────────────────────────── */
 :root {
-  --bg-primary:     #070B12;
-  --bg-surface:     rgba(255, 255, 255, 0.05);
-  --glass-blur:     18px;
-  --border-glass:   rgba(20, 241, 217, 0.18);
-  --border-subtle:  rgba(255, 255, 255, 0.08);
-  --color-primary:  #14F1D9;
-  --color-purple:   #7C5CFF;
-  --color-red:      #FF4D6D;
-  --color-amber:    #FFB347;
-  --color-green:    #22D3A5;
-  --text-primary:   #F0F4FF;
+  color-scheme: dark;
+  /* DARK THEME (Default & Enforced) */
+  --background: #070B12;
+  --foreground: #F5F7FA;
+  --bg-primary: #070B12;
+  --bg-surface: rgba(10, 15, 26, 0.88);
+  --bg-card: #0E1624;
+  --card: #0E1624;
+  --card-foreground: #F5F7FA;
+  --border: rgba(20, 241, 217, 0.18);
+  --border-glass: rgba(20, 241, 217, 0.18);
+  --border-subtle: rgba(255, 255, 255, 0.08);
+  --primary: #14F1D9;
+  --primary-foreground: #070B12;
+  --secondary: #7C5CFF;
+  --secondary-foreground: #F5F7FA;
+  --success: #00E59B;
+  --danger: #FF4D6D;
+  --warning: #F59E0B;
+  --muted: #1E293B;
+  --muted-foreground: #9CA3AF;
+  --text-primary: #F5F7FA;
   --text-secondary: #8B9AB4;
-  --text-muted:     #4A5568;
+  --text-muted: #64748B;
+  --glass-blur: 18px;
 
   /* Glow shadows */
-  --glow-primary:  0 0 20px rgba(20, 241, 217, 0.25);
-  --glow-purple:   0 0 20px rgba(124, 92, 255, 0.30);
-  --glow-red:      0 0 20px rgba(255, 77, 109, 0.30);
+  --glow-primary: 0 0 20px rgba(20, 241, 217, 0.25);
+  --glow-purple: 0 0 20px rgba(124, 92, 255, 0.30);
+  --glow-red: 0 0 20px rgba(255, 77, 109, 0.30);
+  --shadow-glass: 0 8px 32px 0 rgba(0, 0, 0, 0.5);
+  --grid-line: rgba(20, 241, 217, 0.04);
+}
+
+@theme {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-border: var(--border);
+  --color-success: var(--success);
+  --color-danger: var(--danger);
+  --color-warning: var(--warning);
+}
+
+.dark,
+[data-theme='dark'],
+html.dark {
+  color-scheme: dark;
+  /* DARK THEME */
+  --background: #070B12;
+  --foreground: #F5F7FA;
+  --bg-primary: #070B12;
+  --bg-surface: rgba(10, 15, 26, 0.88);
+  --bg-card: #0E1624;
+  --card: #0E1624;
+  --card-foreground: #F5F7FA;
+  --border: rgba(20, 241, 217, 0.18);
+  --border-glass: rgba(20, 241, 217, 0.18);
+  --border-subtle: rgba(255, 255, 255, 0.08);
+  --primary: #14F1D9;
+  --primary-foreground: #070B12;
+  --secondary: #7C5CFF;
+  --secondary-foreground: #F5F7FA;
+  --success: #00E59B;
+  --danger: #FF4D6D;
+  --warning: #F59E0B;
+  --muted: #1E293B;
+  --muted-foreground: #9CA3AF;
+  --text-primary: #F5F7FA;
+  --text-secondary: #8B9AB4;
+  --text-muted: #64748B;
+  --glass-blur: 18px;
+
+  --glow-primary: 0 0 20px rgba(20, 241, 217, 0.25);
+  --glow-purple: 0 0 20px rgba(124, 92, 255, 0.30);
+  --glow-red: 0 0 20px rgba(255, 77, 109, 0.30);
+  --shadow-glass: 0 8px 32px 0 rgba(0, 0, 0, 0.5);
+  --grid-line: rgba(20, 241, 217, 0.04);
 }
 
 /* ─── Base Reset ─────────────────────────────────────────────────────────── */
 *, *::before, *::after { box-sizing: border-box; }
 
 html, body {
+  color-scheme: dark;
   height: 100%;
   margin: 0;
   padding: 0;
-  background-color: var(--bg-primary);
-  color: var(--text-primary);
+  background-color: #070B12;
+  color: #F5F7FA;
   font-family: 'Inter', 'SF Pro Display', system-ui, -apple-system, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
@@ -38,30 +106,34 @@ html, body {
 }
 
 /* ─── Scrollbar ──────────────────────────────────────────────────────────── */
-::-webkit-scrollbar { width: 4px; height: 4px; }
-::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar { width: 5px; height: 5px; }
+::-webkit-scrollbar-track { background: #070B12; }
 ::-webkit-scrollbar-thumb {
-  background: rgba(20, 241, 217, 0.25);
+  background: rgba(20, 241, 217, 0.2);
   border-radius: 4px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: rgba(20, 241, 217, 0.5);
+  background: #14F1D9;
 }
 
 /* ─── Glass Surface ──────────────────────────────────────────────────────── */
 .glass {
-  background: var(--bg-surface);
+  background-color: #0A0F1A; /* Solid dark fallback before backdrop-filter paints */
+  background: linear-gradient(135deg, rgba(16, 24, 38, 0.88), rgba(7, 11, 18, 0.94));
   backdrop-filter: blur(var(--glass-blur));
   -webkit-backdrop-filter: blur(var(--glass-blur));
   border: 1px solid var(--border-glass);
+  box-shadow: var(--shadow-glass);
 }
 
 .glass-subtle {
-  background: rgba(255, 255, 255, 0.03);
+  background-color: #080D17; /* Solid dark fallback */
+  background: linear-gradient(135deg, rgba(14, 21, 33, 0.80), rgba(7, 11, 18, 0.88));
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
   border: 1px solid var(--border-subtle);
 }
+
 
 /* ─── Glow utilities ─────────────────────────────────────────────────────── */
 .glow-primary { box-shadow: var(--glow-primary); }
@@ -73,14 +145,14 @@ html, body {
 
 /* ─── Gradient text ──────────────────────────────────────────────────────── */
 .gradient-text-primary {
-  background: linear-gradient(135deg, #14F1D9, #7C5CFF);
+  background: linear-gradient(135deg, var(--primary), var(--secondary));
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
 }
 
 .gradient-text-warm {
-  background: linear-gradient(135deg, #FFB347, #FF4D6D);
+  background: linear-gradient(135deg, var(--warning), var(--danger));
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -101,11 +173,6 @@ html, body {
   0%   { background-position: 0% 50%; }
   50%  { background-position: 100% 50%; }
   100% { background-position: 0% 50%; }
-}
-
-@keyframes scan-line {
-  0%   { transform: translateY(-100%); }
-  100% { transform: translateY(100%); }
 }
 
 @keyframes float {
@@ -145,25 +212,14 @@ html, body {
 /* ─── Grid background ────────────────────────────────────────────────────── */
 .bg-grid {
   background-image:
-    linear-gradient(rgba(20, 241, 217, 0.04) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(20, 241, 217, 0.04) 1px, transparent 1px);
+    linear-gradient(var(--grid-line) 1px, transparent 1px),
+    linear-gradient(90deg, var(--grid-line) 1px, transparent 1px);
   background-size: 40px 40px;
 }
 
-/* ─── Neon border ────────────────────────────────────────────────────────── */
-.neon-border {
-  border: 1px solid var(--color-primary);
-  box-shadow: 0 0 8px rgba(20, 241, 217, 0.3), inset 0 0 8px rgba(20, 241, 217, 0.05);
-}
-.neon-border-purple {
-  border: 1px solid var(--color-purple);
-  box-shadow: 0 0 8px rgba(124, 92, 255, 0.3), inset 0 0 8px rgba(124, 92, 255, 0.05);
-}
-.neon-border-red {
-  border: 1px solid var(--color-red);
-  box-shadow: 0 0 8px rgba(255, 77, 109, 0.3), inset 0 0 8px rgba(255, 77, 109, 0.05);
-}
+/* ─── Tailwind v4 Dark Mode Variant ──────────────────────────────────────── */
+@custom-variant dark (&:where(.dark, .dark *));
 
-/* ─── Map container ──────────────────────────────────────────────────────── */
-.mapboxgl-ctrl-logo,
-.mapboxgl-ctrl-attrib { display: none !important; }
+/* ─── End of Global Theme Styles ─────────────────────────────────────────── */
+
+

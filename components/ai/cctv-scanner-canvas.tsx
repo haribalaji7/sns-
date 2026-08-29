@@ -85,7 +85,7 @@ export function CCTVScannerCanvas({
   };
 
   return (
-    <div className="relative w-full h-full min-h-[420px] rounded-2xl glass border border-[rgba(20,241,217,0.3)] bg-[#030407] overflow-hidden flex flex-col shadow-2xl">
+    <div className="relative w-full h-[340px] sm:h-[370px] min-h-[300px] rounded-2xl glass border border-[rgba(20,241,217,0.3)] bg-[#030407] overflow-hidden flex flex-col shadow-2xl">
       {/* ─── Top Telemetry Bar ────────────────────────────────────────── */}
       <div className="flex items-center justify-between px-4 py-2.5 bg-[#070B12]/90 border-b border-white/[0.08] backdrop-blur-md z-30 select-none">
         <div className="flex items-center gap-2.5">

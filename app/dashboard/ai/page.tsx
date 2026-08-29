@@ -72,7 +72,7 @@ export default function AIPage() {
     { id: 'RU-4', type: 'CAM-ATH-03 (Arena)', location: 'Athletic Pavilion', time: new Date(Date.now() - 25 * 60000).toISOString(), status: 'flagged' as const, scenarioKey: 'scen-medical' },
   ]);
 
-  // Run simulated step-by-step pipeline when a new feed preset is selected
+  // Run simulated step-by-step pipeline when a new feed preset is selected (Accelerated Sub-300ms High-Speed Pipeline)
   const runPipelineAnalysis = (scenario: DetectionScenario) => {
     setIsAnalyzing(true);
     setPipelineStage('input');
@@ -80,26 +80,26 @@ export default function AIPage() {
 
     setTimeout(() => {
       setPipelineStage('preprocessing');
-    }, 400);
+    }, 50);
 
     setTimeout(() => {
       setPipelineStage('yolo');
-    }, 900);
+    }, 100);
 
     setTimeout(() => {
       setPipelineStage('gemini');
-    }, 1500);
+    }, 160);
 
     setTimeout(() => {
       setPipelineStage('risk');
-    }, 2100);
+    }, 220);
 
     setTimeout(() => {
       setPipelineStage('verification');
       setIsAnalyzing(false);
       setActiveScenario(scenario);
       soundEffects.playAlert();
-    }, 2600);
+    }, 280);
   };
 
   // Switch scenario preset
@@ -171,13 +171,13 @@ export default function AIPage() {
     
     setActiveScenario(tempScenario);
 
-    setTimeout(() => setPipelineStage('preprocessing'), 300);
-    setTimeout(() => setPipelineStage('yolo'), 700);
+    setTimeout(() => setPipelineStage('preprocessing'), 40);
+    setTimeout(() => setPipelineStage('yolo'), 80);
 
     const processBase64AndDetect = async (base64Str: string) => {
       try {
-        setTimeout(() => setPipelineStage('gemini'), 1200);
-        setTimeout(() => setPipelineStage('risk'), 1600);
+        setTimeout(() => setPipelineStage('gemini'), 120);
+        setTimeout(() => setPipelineStage('risk'), 160);
 
         const res = await fetch('/api/ai/analyze-image', {
           method: 'POST',
@@ -268,6 +268,19 @@ export default function AIPage() {
       reader.onload = () => {
         processBase64AndDetect(reader.result as string);
       };
+    } else if (fileOrUrl.startsWith('blob:')) {
+      fetch(fileOrUrl)
+        .then((r) => r.blob())
+        .then((b) => {
+          const reader = new FileReader();
+          reader.readAsDataURL(b);
+          reader.onload = () => {
+            processBase64AndDetect(reader.result as string);
+          };
+        })
+        .catch(() => {
+          processBase64AndDetect(fileOrUrl);
+        });
     } else {
       processBase64AndDetect(fileOrUrl);
     }
@@ -334,13 +347,13 @@ export default function AIPage() {
               <Sparkles className="w-5 h-5 text-[#14F1D9]" />
             </div>
             <div>
-              <h1 className="text-xl font-black tracking-tight text-[#F0F4FF] flex items-center gap-2">
+              <h1 className="text-xl font-black tracking-tight text-foreground flex items-center gap-2">
                 CampusShield Intelligence Layer
                 <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded-full bg-[#14F1D9]/15 text-[#14F1D9] border border-[#14F1D9]/40 uppercase">
                   v4.2 PRO
                 </span>
               </h1>
-              <p className="text-xs text-[#8B9AB4] font-medium">
+              <p className="text-xs text-muted-foreground font-medium">
                 YOLOv8 Fire & Smoke Vision Engine, Multi-Modal Copilot & Threat Verification
               </p>
             </div>
@@ -348,7 +361,7 @@ export default function AIPage() {
         </div>
 
         {/* 3-Mode Switcher Tabs */}
-        <div className="flex items-center gap-1.5 p-1 rounded-xl glass border border-white/[0.08] bg-[#070B12]/80">
+        <div className="flex items-center gap-1.5 p-1 rounded-xl glass border border-border bg-card/80 dark:bg-[#070B12]/80">
           <button
             onClick={() => {
               soundEffects.playClick();
@@ -356,8 +369,8 @@ export default function AIPage() {
             }}
             className={`px-3.5 py-1.5 rounded-lg text-xs font-bold font-sans flex items-center gap-2 transition-all cursor-pointer ${
               activeTab === 'detection'
-                ? 'bg-gradient-to-r from-[#7C5CFF] to-[#14F1D9] text-white shadow-[0_0_15px_rgba(124,92,255,0.4)]'
-                : 'text-[#8B9AB4] hover:text-white'
+                ? 'bg-gradient-to-r from-[#7C5CFF] to-[#14F1D9] text-primary-foreground dark:text-white shadow-[0_0_15px_rgba(124,92,255,0.4)]'
+                : 'text-muted-foreground hover:text-foreground'
             }`}
           >
             <Scan className="w-4 h-4" />
@@ -371,8 +384,8 @@ export default function AIPage() {
             }}
             className={`px-3.5 py-1.5 rounded-lg text-xs font-bold font-sans flex items-center gap-2 transition-all cursor-pointer ${
               activeTab === 'yolo'
-                ? 'bg-gradient-to-r from-[#FF4D6D] to-[#FFB347] text-white shadow-[0_0_15px_rgba(255,77,109,0.4)]'
-                : 'text-[#8B9AB4] hover:text-white'
+                ? 'bg-gradient-to-r from-[#FF4D6D] to-[#FFB347] text-primary-foreground dark:text-white shadow-[0_0_15px_rgba(255,77,109,0.4)]'
+                : 'text-muted-foreground hover:text-foreground'
             }`}
           >
             <Flame className="w-4 h-4" />
@@ -386,8 +399,8 @@ export default function AIPage() {
             }}
             className={`px-3.5 py-1.5 rounded-lg text-xs font-bold font-sans flex items-center gap-2 transition-all cursor-pointer ${
               activeTab === 'copilot'
-                ? 'bg-gradient-to-r from-[#14F1D9] to-[#22D3A5] text-[#070B12] shadow-[0_0_15px_rgba(20,241,217,0.4)]'
-                : 'text-[#8B9AB4] hover:text-white'
+                ? 'bg-gradient-to-r from-[#14F1D9] to-[#22D3A5] text-primary-foreground dark:text-[#070B12] shadow-[0_0_15px_rgba(20,241,217,0.4)]'
+                : 'text-muted-foreground hover:text-foreground'
             }`}
           >
             <Bot className="w-4 h-4" />
@@ -421,13 +434,14 @@ export default function AIPage() {
           {/* Neural Pipeline Stepper Banner */}
           <PipelineStepper
             currentStage={pipelineStage}
+            isAnalyzing={isAnalyzing}
             stageLatencies={{
               input: 8,
               preprocessing: 14,
               yolo: 18,
               gemini: 42,
               risk: 12,
-              verification: 0,
+              verification: 6,
               dispatched: 10,
             }}
           />
@@ -448,8 +462,8 @@ export default function AIPage() {
             </div>
 
             {/* Center: CCTV Vision Scanner & AI Recommendation */}
-            <div className="lg:col-span-5 flex flex-col gap-5 overflow-y-auto px-1">
-              <div className="flex-1 min-h-[420px] flex flex-col">
+            <div className="lg:col-span-5 flex flex-col gap-4 overflow-y-auto px-1">
+              <div className="flex-shrink-0 flex flex-col">
                 <CCTVScannerCanvas
                   imageUrl={activeScenario.imageUrl}
                   cameraId={activeScenario.cameraId}
@@ -461,18 +475,20 @@ export default function AIPage() {
                 />
               </div>
 
-              <AIRecommendationCard
-                recommendation={activeScenario.recommendation}
-                suggestedActions={activeScenario.suggestedActions}
-                onActionTrigger={handleActionTrigger}
-              />
+              <div className="flex-1">
+                <AIRecommendationCard
+                  recommendation={activeScenario.recommendation}
+                  suggestedActions={activeScenario.suggestedActions}
+                  onActionTrigger={handleActionTrigger}
+                />
+              </div>
             </div>
 
             {/* Right: Confidence Gauge, Risk Engine & Verification */}
             <div className="lg:col-span-4 flex flex-col gap-5 overflow-y-auto pl-1">
-              <div className="bg-[#070B12]/80 border border-white/[0.08] rounded-xl p-4 backdrop-blur-md flex flex-col items-center shadow-lg">
+              <div className="bg-card/80 dark:bg-[#070B12]/80 border border-border rounded-xl p-4 backdrop-blur-md flex flex-col items-center shadow-lg">
                 <div className="w-full flex items-center justify-between mb-2">
-                  <span className="text-[10px] font-mono uppercase text-[#8B9AB4] font-bold">
+                  <span className="text-[10px] font-mono uppercase text-muted-foreground font-bold">
                     Verification Metrics
                   </span>
                   <span className="text-[10px] font-mono text-[#14F1D9] font-bold">
@@ -518,7 +534,7 @@ export default function AIPage() {
               initial={{ opacity: 0, scale: 0.9, y: 20 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.9 }}
-              className="relative w-full max-w-lg rounded-2xl glass border border-[rgba(20,241,217,0.4)] bg-[#070B12] p-6 shadow-[0_0_50px_rgba(20,241,217,0.3)] overflow-hidden"
+              className="relative w-full max-w-lg rounded-2xl glass border border-[rgba(20,241,217,0.4)] bg-card dark:bg-[#070B12] p-6 shadow-[0_0_50px_rgba(20,241,217,0.3)] overflow-hidden"
             >
               <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-[#14F1D9] via-[#22D3A5] to-[#7C5CFF]" />
 
@@ -527,7 +543,7 @@ export default function AIPage() {
                   <CheckCircle2 className="w-7 h-7" />
                 </div>
                 <div>
-                  <h3 className="text-lg font-black text-[#F0F4FF]">
+                  <h3 className="text-lg font-black text-foreground">
                     Incident Verified & Dispatched
                   </h3>
                   <p className="text-xs text-[#22D3A5] font-mono font-semibold">
@@ -536,25 +552,25 @@ export default function AIPage() {
                 </div>
               </div>
 
-              <div className="bg-black/50 rounded-xl p-4 border border-white/[0.08] space-y-2.5 mb-5 text-xs font-mono">
+              <div className="bg-black/5 dark:bg-black/50 rounded-xl p-4 border border-border space-y-2.5 mb-5 text-xs font-mono">
                 <div className="flex justify-between">
-                  <span className="text-[#8B9AB4]">Incident ID:</span>
+                  <span className="text-muted-foreground">Incident ID:</span>
                   <span className="text-[#14F1D9] font-bold">{lastDispatchedId || 'INC-0092'}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-[#8B9AB4]">Type & Severity:</span>
+                  <span className="text-muted-foreground">Type & Severity:</span>
                   <span className="text-[#FF4D6D] font-bold uppercase">{activeScenario.type} · {activeScenario.severity}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-[#8B9AB4]">Location:</span>
-                  <span className="text-[#F0F4FF] truncate max-w-[240px]">{activeScenario.location}</span>
+                  <span className="text-muted-foreground">Location:</span>
+                  <span className="text-foreground truncate max-w-[240px]">{activeScenario.location}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-[#8B9AB4]">Assigned Unit:</span>
+                  <span className="text-muted-foreground">Assigned Unit:</span>
                   <span className="text-[#22D3A5] font-bold">Squad Alpha (Cpt. Alex Rivera)</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-[#8B9AB4]">Estimated Response ETA:</span>
+                  <span className="text-muted-foreground">Estimated Response ETA:</span>
                   <span className="text-[#FFB347] font-bold">1m 45s</span>
                 </div>
               </div>
@@ -562,7 +578,7 @@ export default function AIPage() {
               <div className="flex gap-3">
                 <Link
                   href="/dashboard/map"
-                  className="flex-1 py-3 px-4 rounded-xl bg-gradient-to-r from-[#14F1D9] to-[#22D3A5] text-[#070B12] font-black text-xs uppercase flex items-center justify-center gap-2 hover:brightness-110 shadow-lg cursor-pointer"
+                  className="flex-1 py-3 px-4 rounded-xl bg-gradient-to-r from-[#14F1D9] to-[#22D3A5] text-primary-foreground dark:text-[#070B12] font-black text-xs uppercase flex items-center justify-center gap-2 hover:brightness-110 shadow-lg cursor-pointer"
                 >
                   <span>Track on Campus Map</span>
                   <ChevronRight className="w-4 h-4" />
@@ -570,7 +586,7 @@ export default function AIPage() {
 
                 <button
                   onClick={() => setShowDispatchModal(false)}
-                  className="py-3 px-4 rounded-xl bg-white/5 hover:bg-white/10 text-[#8B9AB4] hover:text-white border border-white/10 font-bold text-xs cursor-pointer"
+                  className="py-3 px-4 rounded-xl bg-black/5 dark:bg-white/5 hover:bg-black/10 dark:hover:bg-white/10 text-muted-foreground hover:text-foreground border border-border font-bold text-xs cursor-pointer"
                 >
                   Dismiss
                 </button>

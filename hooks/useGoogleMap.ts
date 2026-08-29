@@ -1,8 +1,9 @@
 'use client';
 
 import { useState, useEffect, useRef, useCallback } from 'react';
+import { useTheme } from 'next-themes';
 import { loadGoogleMaps, isGoogleMapsConfigured } from '@/lib/maps/googleMapsLoader';
-import { DARK_COMMAND_CENTER_MAP_STYLE } from '@/lib/maps/mapStyles';
+import { DARK_COMMAND_CENTER_MAP_STYLE, LIGHT_COMMAND_CENTER_MAP_STYLE } from '@/lib/maps/mapStyles';
 
 export interface UseGoogleMapOptions {
   center?: { lat: number; lng: number };
@@ -18,6 +19,7 @@ export function useGoogleMap(
   containerRef: React.RefObject<HTMLDivElement | null>,
   options: UseGoogleMapOptions = {},
 ) {
+  const { resolvedTheme } = useTheme();
   const [map, setMap] = useState<google.maps.Map | null>(null);
   const [isLoaded, setIsLoaded] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
@@ -30,6 +32,7 @@ export function useGoogleMap(
   const mapId = options.mapId;
 
   const mapInstanceRef = useRef<google.maps.Map | null>(null);
+  const isDark = resolvedTheme !== 'light';
 
   useEffect(() => {
     let isMounted = true;
@@ -60,15 +63,15 @@ export function useGoogleMap(
             streetViewControl: false,
             rotateControl: true,
             fullscreenControl: false,
-            backgroundColor: '#070B12',
+            backgroundColor: isDark ? '#070B12' : '#F5F7FB',
           };
 
           // If mapId is explicitly provided, use it (and don't set client styles).
-          // Otherwise, set client-side dark command center styles when on roadmap.
+          // Otherwise, set client-side dark/light command center styles when on roadmap.
           if (mapId) {
             mapOptions.mapId = mapId;
           } else if (initialMapType === 'roadmap') {
-            mapOptions.styles = DARK_COMMAND_CENTER_MAP_STYLE;
+            mapOptions.styles = isDark ? DARK_COMMAND_CENTER_MAP_STYLE : LIGHT_COMMAND_CENTER_MAP_STYLE;
           }
 
           const MapConstructor = googleInstance?.maps?.Map || (typeof window !== 'undefined' ? window.google?.maps?.Map : null);
@@ -93,6 +96,19 @@ export function useGoogleMap(
       isMounted = false;
     };
   }, [containerRef]);
+
+  // Dynamically update map style when theme changes without page reload
+  useEffect(() => {
+    if (mapInstanceRef.current && !mapId) {
+      const activeType = mapInstanceRef.current.getMapTypeId();
+      if (activeType === 'roadmap') {
+        mapInstanceRef.current.setOptions({
+          styles: isDark ? DARK_COMMAND_CENTER_MAP_STYLE : LIGHT_COMMAND_CENTER_MAP_STYLE,
+          backgroundColor: isDark ? '#070B12' : '#F5F7FB',
+        });
+      }
+    }
+  }, [resolvedTheme, isDark, mapId]);
 
   const panTo = useCallback((lat: number, lng: number) => {
     if (mapInstanceRef.current) {
@@ -119,14 +135,16 @@ export function useGoogleMap(
         // Only update client-side styles if mapId is NOT present
         if (!mapId) {
           if (type === 'roadmap') {
-            mapInstanceRef.current.setOptions({ styles: DARK_COMMAND_CENTER_MAP_STYLE });
+            mapInstanceRef.current.setOptions({
+              styles: isDark ? DARK_COMMAND_CENTER_MAP_STYLE : LIGHT_COMMAND_CENTER_MAP_STYLE,
+            });
           } else {
             mapInstanceRef.current.setOptions({ styles: [] });
           }
         }
       }
     },
-    [mapId],
+    [mapId, isDark],
   );
 
   const setTilt = useCallback((tilt: number) => {

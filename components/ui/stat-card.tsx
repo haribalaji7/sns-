@@ -54,12 +54,12 @@ export function StatCard({
       initial={{ opacity: 0, y: 16 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.45, delay, ease: [0.25, 0.46, 0.45, 0.94] }}
-      className={cn('glass rounded-2xl p-5 flex flex-col gap-3 hover:border-[rgba(255,255,255,0.12)] transition-all duration-300', className)}
+      className={cn('glass rounded-2xl p-5 flex flex-col gap-3 hover:border-primary/40 transition-all duration-300', className)}
       style={{ borderColor: colors.border }}
     >
       {/* Header row */}
       <div className="flex items-start justify-between">
-        <span className="text-xs font-medium text-[#8B9AB4] uppercase tracking-wider leading-tight">
+        <span className="text-xs font-medium text-muted-foreground uppercase tracking-wider leading-tight">
           {title}
         </span>
         {icon && (
@@ -74,11 +74,11 @@ export function StatCard({
 
       {/* Value */}
       <div>
-        <span className={cn('font-bold text-[#F0F4FF] leading-none tabular-nums', valueSizeMap[valueSize])}>
+        <span className={cn('font-bold text-foreground leading-none tabular-nums', valueSizeMap[valueSize])}>
           {value}
         </span>
         {subtitle && (
-          <p className="text-xs text-[#8B9AB4] mt-1">{subtitle}</p>
+          <p className="text-xs text-muted-foreground mt-1">{subtitle}</p>
         )}
       </div>
 
@@ -87,9 +87,9 @@ export function StatCard({
         <div className="flex items-center gap-1.5">
           <div className={cn(
             'flex items-center gap-0.5 px-1.5 py-0.5 rounded-full text-[10px] font-semibold',
-            isPositive ? 'bg-[rgba(34,211,165,0.15)] text-[#22D3A5]' :
-            isNegative ? 'bg-[rgba(255,77,109,0.15)] text-[#FF4D6D]' :
-                         'bg-[rgba(255,255,255,0.08)] text-[#8B9AB4]',
+            isPositive ? 'bg-success/15 text-success' :
+            isNegative ? 'bg-danger/15 text-danger' :
+                         'bg-black/10 dark:bg-white/[0.08] text-muted-foreground',
           )}>
             {isPositive ? <TrendingUp className="w-2.5 h-2.5" /> :
              isNegative ? <TrendingDown className="w-2.5 h-2.5" /> :
@@ -97,7 +97,7 @@ export function StatCard({
             {Math.abs(trend)}%
           </div>
           {trendLabel && (
-            <span className="text-[10px] text-[#4A5568]">{trendLabel}</span>
+            <span className="text-[10px] text-muted-foreground">{trendLabel}</span>
           )}
         </div>
       )}

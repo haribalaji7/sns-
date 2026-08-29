@@ -22,13 +22,14 @@ DO $$ BEGIN
 END $$;
 
 -- Add tables to realtime publication safely
-ALTER PUBLICATION supabase_realtime ADD TABLE public.incidents;
-ALTER PUBLICATION supabase_realtime ADD TABLE public.responders;
-ALTER PUBLICATION supabase_realtime ADD TABLE public.alerts;
-ALTER PUBLICATION supabase_realtime ADD TABLE public.evacuation_routes;
-ALTER PUBLICATION supabase_realtime ADD TABLE public.ai_logs;
-ALTER PUBLICATION supabase_realtime ADD TABLE public.sensors;
-ALTER PUBLICATION supabase_realtime ADD TABLE public.campus_zones;
+DO $$ BEGIN ALTER PUBLICATION supabase_realtime ADD TABLE public.incidents; EXCEPTION WHEN duplicate_object THEN null; END $$;
+DO $$ BEGIN ALTER PUBLICATION supabase_realtime ADD TABLE public.responders; EXCEPTION WHEN duplicate_object THEN null; END $$;
+DO $$ BEGIN ALTER PUBLICATION supabase_realtime ADD TABLE public.alerts; EXCEPTION WHEN duplicate_object THEN null; END $$;
+DO $$ BEGIN ALTER PUBLICATION supabase_realtime ADD TABLE public.evacuation_routes; EXCEPTION WHEN duplicate_object THEN null; END $$;
+DO $$ BEGIN ALTER PUBLICATION supabase_realtime ADD TABLE public.ai_logs; EXCEPTION WHEN duplicate_object THEN null; END $$;
+DO $$ BEGIN ALTER PUBLICATION supabase_realtime ADD TABLE public.sensors; EXCEPTION WHEN duplicate_object THEN null; END $$;
+DO $$ BEGIN ALTER PUBLICATION supabase_realtime ADD TABLE public.campus_zones; EXCEPTION WHEN duplicate_object THEN null; END $$;
+
 
 
 -- 3. FOREIGN KEY INDEXES (Optimizes JOIN queries and cascade checks)

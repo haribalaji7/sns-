@@ -65,6 +65,8 @@ export function YOLOv8ModelStudio({ onAnalyzeUploadedImage }: YOLOv8ModelStudioP
   const [isTesting, setIsTesting] = useState<boolean>(false);
   const [testDetections, setTestDetections] = useState<any[]>([]);
   const [testResultSummary, setTestResultSummary] = useState<any>(null);
+  const [confThreshold, setConfThreshold] = useState<number>(20);
+  const [testVisionFilter, setTestVisionFilter] = useState<'rgb' | 'thermal' | 'night' | 'edges'>('rgb');
 
   // Fetch initial model metadata
   useEffect(() => {
@@ -147,44 +149,57 @@ export function YOLOv8ModelStudio({ onAnalyzeUploadedImage }: YOLOv8ModelStudioP
     setTestImage(imgSource);
 
     try {
-      // If it's a remote URL, pass imageBase64 or url
-      let payload = { imageBase64: imgSource };
-      
-      // If it's a URL, convert or fetch
-      if (imgSource.startsWith('http')) {
+      let base64Data = imgSource;
+
+      // If it's a client-side blob URL (from local file selection), convert to base64
+      if (imgSource.startsWith('blob:')) {
         const response = await fetch(imgSource);
         const blob = await response.blob();
-        const reader = new FileReader();
-        reader.readAsDataURL(blob);
-        reader.onloadend = async () => {
-          const base64data = reader.result as string;
-          const res = await fetch('/api/ai/analyze-image', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ imageBase64: base64data })
-          });
-          const data = await res.json();
-          setTestDetections(data.objects || []);
-          setTestResultSummary(data);
-          setIsTesting(false);
-          soundEffects.playAlert();
-        };
-        return;
+        base64Data = await new Promise<string>((resolve, reject) => {
+          const reader = new FileReader();
+          reader.onloadend = () => resolve(reader.result as string);
+          reader.onerror = reject;
+          reader.readAsDataURL(blob);
+        });
       }
 
       const res = await fetch('/api/ai/analyze-image', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload)
+        body: JSON.stringify({ imageBase64: base64Data }),
       });
+
+      if (!res.ok) {
+        throw new Error(`Inference API error: ${res.statusText}`);
+      }
+
       const data = await res.json();
       setTestDetections(data.objects || []);
       setTestResultSummary(data);
-    } catch (err) {
-      console.error(err);
+      soundEffects.playAlert();
+
+      if (data.objects && data.objects.length > 0) {
+        addToast({
+          type: 'success',
+          title: `YOLOv8 Detection: ${data.title || 'Complete'}`,
+          message: `Localized ${data.objects.length} entities with ${data.confidence || 90}% confidence.`,
+        });
+      } else {
+        addToast({
+          type: 'info',
+          title: 'Scene Clear',
+          message: 'Zero combustion or hazard signatures detected in frame.',
+        });
+      }
+    } catch (err: any) {
+      console.error('Test inference error:', err);
+      addToast({
+        type: 'error',
+        title: 'Inference Warning',
+        message: 'Could not process media feed. Check connection or try another sample.',
+      });
     } finally {
       setIsTesting(false);
-      soundEffects.playAlert();
     }
   };
 
@@ -381,27 +396,37 @@ export function YOLOv8ModelStudio({ onAnalyzeUploadedImage }: YOLOv8ModelStudioP
       {/* ─── SUB-TAB 2: INTERACTIVE TEST BENCH ────────────────────────── */}
       {selectedSubTab === 'test' && (
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-5">
-          {/* Left: Preset Selector & Custom Upload */}
+          {/* Left: Preset Selector, Confidence Threshold & Custom Upload */}
           <div className="lg:col-span-4 flex flex-col gap-4">
-            <div className="bg-[#070B12]/80 border border-white/[0.08] rounded-xl p-4 backdrop-blur-md">
-              <span className="text-[10px] font-mono uppercase text-[#8B9AB4] font-bold block mb-3">
-                Upload Custom Image or Pick Sample
-              </span>
+            <div className="bg-[#070B12]/80 border border-white/[0.08] rounded-xl p-4 backdrop-blur-md space-y-4">
+              <div className="flex items-center justify-between">
+                <span className="text-[10px] font-mono uppercase text-[#8B9AB4] font-bold block">
+                  Select Incident Scenario
+                </span>
+                <span className="text-[10px] font-mono text-[#14F1D9]">6 SAMPLES</span>
+              </div>
 
               {/* Sample Presets */}
-              <div className="grid grid-cols-2 gap-2 mb-4">
+              <div className="grid grid-cols-2 gap-2">
                 {[
-                  { label: 'Lab Fire Outbreak', url: 'https://images.unsplash.com/photo-1517420704952-d9f39e95b43e?w=900&auto=format&fit=crop&q=80', icon: Flame, color: '#FF4D6D' },
-                  { label: 'Forest Wildfire Smoke', url: 'https://images.unsplash.com/photo-1602980085566-4c330f837ecb?w=900&auto=format&fit=crop&q=80', icon: Wind, color: '#FFB347' },
-                  { label: 'Chemical Flame Flare', url: 'https://images.unsplash.com/photo-1542361345-89e58247f2d5?w=900&auto=format&fit=crop&q=80', icon: Flame, color: '#FF4D6D' },
+                  { label: 'Lab Chemical Fire', url: 'https://images.unsplash.com/photo-1517420704952-d9f39e95b43e?w=900&auto=format&fit=crop&q=80', icon: Flame, color: '#FF4D6D' },
+                  { label: 'Dense Smoke Plume', url: 'https://images.unsplash.com/photo-1583863788434-e58a36330cf0?w=900&auto=format&fit=crop&q=80', icon: Wind, color: '#FFB347' },
+                  { label: 'Industrial Flare Plume', url: 'https://images.unsplash.com/photo-1542361345-89e58247f2d5?w=900&auto=format&fit=crop&q=80', icon: Flame, color: '#FF4D6D' },
+                  { label: 'Server Rack Cable Fire', url: 'https://images.unsplash.com/photo-1558494949-ef010cbdcc31?w=900&auto=format&fit=crop&q=80', icon: Zap, color: '#7C5CFF' },
+                  { label: 'Night Streetlamp (False Test)', url: 'https://images.unsplash.com/photo-1509198397868-475647b2a1e5?w=900&auto=format&fit=crop&q=80', icon: Activity, color: '#38BDF8' },
                   { label: 'Clean Campus Quad', url: 'https://images.unsplash.com/photo-1541339907198-e08756dedf3f?w=900&auto=format&fit=crop&q=80', icon: Check, color: '#22D3A5' },
                 ].map((sample) => {
                   const Icon = sample.icon;
+                  const isSelected = testImage === sample.url;
                   return (
                     <button
                       key={sample.label}
                       onClick={() => handleRunTestInference(sample.url)}
-                      className="p-2.5 rounded-lg bg-white/[0.02] hover:bg-white/[0.08] border border-white/[0.06] hover:border-white/20 text-left transition-all cursor-pointer flex flex-col gap-1"
+                      className={`p-2.5 rounded-lg border text-left transition-all cursor-pointer flex flex-col gap-1 ${
+                        isSelected
+                          ? 'bg-white/[0.08] border-[#14F1D9] shadow-[0_0_10px_rgba(20,241,217,0.3)]'
+                          : 'bg-white/[0.02] hover:bg-white/[0.06] border-white/[0.06]'
+                      }`}
                     >
                       <Icon className="w-4 h-4" style={{ color: sample.color }} />
                       <span className="text-[11px] font-semibold text-[#F0F4FF] leading-tight truncate">
@@ -412,103 +437,180 @@ export function YOLOv8ModelStudio({ onAnalyzeUploadedImage }: YOLOv8ModelStudioP
                 })}
               </div>
 
+              {/* Confidence Threshold Slider */}
+              <div className="pt-2 border-t border-white/[0.06] space-y-1.5">
+                <div className="flex items-center justify-between text-xs font-mono">
+                  <span className="text-[#8B9AB4] text-[11px]">Confidence Filter Threshold</span>
+                  <span className="text-[#14F1D9] font-bold">{confThreshold}%</span>
+                </div>
+                <input
+                  type="range"
+                  min="5"
+                  max="90"
+                  step="5"
+                  value={confThreshold}
+                  onChange={(e) => setConfThreshold(Number(e.target.value))}
+                  className="w-full accent-[#14F1D9] cursor-pointer"
+                />
+              </div>
+
               {/* Dropzone */}
-              <Dropzone
-                onFileSelect={(file) => {
-                  if (typeof file === 'string') {
-                    setTestImage(file);
-                    handleRunTestInference(file);
-                  } else {
-                    const url = URL.createObjectURL(file);
-                    setTestImage(url);
-                    const reader = new FileReader();
-                    reader.readAsDataURL(file);
-                    reader.onload = () => {
-                      handleRunTestInference(reader.result as string);
-                    };
-                  }
-                  if (onAnalyzeUploadedImage) onAnalyzeUploadedImage(file);
-                }}
-                className="h-32"
-              />
+              <div className="pt-2 border-t border-white/[0.06]">
+                <Dropzone
+                  onFileSelect={(file) => {
+                    if (typeof file === 'string') {
+                      setTestImage(file);
+                      handleRunTestInference(file);
+                    } else {
+                      const url = URL.createObjectURL(file);
+                      setTestImage(url);
+                      const reader = new FileReader();
+                      reader.readAsDataURL(file);
+                      reader.onload = () => {
+                        handleRunTestInference(reader.result as string);
+                      };
+                    }
+                    if (onAnalyzeUploadedImage) onAnalyzeUploadedImage(file);
+                  }}
+                  className="h-28"
+                />
+              </div>
             </div>
 
             {/* Detections List */}
             <div className="bg-[#070B12]/80 border border-white/[0.08] rounded-xl p-4 backdrop-blur-md flex-1">
               <span className="text-[10px] font-mono uppercase text-[#8B9AB4] font-bold block mb-2">
-                YOLOv8 Output ({testDetections.length} Entities Found)
+                YOLOv8 Output ({testDetections.filter(d => d.confidence >= confThreshold).length} Entities Above {confThreshold}%)
               </span>
 
-              {testDetections.length === 0 ? (
+              {testDetections.filter(d => d.confidence >= confThreshold).length === 0 ? (
                 <div className="text-center py-6 text-[#8B9AB4] text-xs font-mono">
-                  {isTesting ? 'Running inference...' : 'Click "Run Inference" or select a preset to test.'}
+                  {isTesting ? 'Running inference...' : 'No detections above threshold or zero combustion.'}
                 </div>
               ) : (
                 <div className="space-y-2 max-h-[220px] overflow-y-auto pr-1">
-                  {testDetections.map((det, i) => (
-                    <div
-                      key={det.id || i}
-                      className="p-2.5 rounded-lg border flex items-center justify-between"
-                      style={{
-                        borderColor: `${det.color || '#FF4D6D'}40`,
-                        backgroundColor: `${det.color || '#FF4D6D'}10`,
-                      }}
-                    >
-                      <div>
-                        <p className="text-xs font-bold text-[#F0F4FF]">{det.label}</p>
-                        <p className="text-[9px] font-mono text-[#8B9AB4]">
-                          Box: [{det.x}%, {det.y}%, {det.w}%, {det.h}%]
-                        </p>
-                      </div>
-                      <span
-                        className="px-2 py-0.5 rounded text-[10px] font-mono font-bold text-white shadow"
-                        style={{ backgroundColor: det.color || '#FF4D6D' }}
+                  {testDetections
+                    .filter((det) => det.confidence >= confThreshold)
+                    .map((det, i) => (
+                      <div
+                        key={det.id || i}
+                        className="p-2.5 rounded-lg border flex items-center justify-between"
+                        style={{
+                          borderColor: `${det.color || '#FF4D6D'}40`,
+                          backgroundColor: `${det.color || '#FF4D6D'}10`,
+                        }}
                       >
-                        {det.confidence}% Conf
-                      </span>
-                    </div>
-                  ))}
+                        <div>
+                          <p className="text-xs font-bold text-[#F0F4FF]">{det.label}</p>
+                          <p className="text-[9px] font-mono text-[#8B9AB4]">
+                            Box: [{det.x}%, {det.y}%, {det.w}%, {det.h}%]
+                          </p>
+                          {det.telemetry?.temp && (
+                            <p className="text-[9px] font-mono text-[#FF4D6D]">
+                              Core Temp: {det.telemetry.temp}
+                            </p>
+                          )}
+                          {det.telemetry?.opacity && (
+                            <p className="text-[9px] font-mono text-[#FFB347]">
+                              Opacity: {det.telemetry.opacity}
+                            </p>
+                          )}
+                        </div>
+                        <span
+                          className="px-2 py-0.5 rounded text-[10px] font-mono font-bold text-white shadow"
+                          style={{ backgroundColor: det.color || '#FF4D6D' }}
+                        >
+                          {det.confidence}% Conf
+                        </span>
+                      </div>
+                    ))}
                 </div>
               )}
             </div>
           </div>
 
-          {/* Right: Annotated Visual Canvas */}
+          {/* Right: Annotated Visual Canvas & Diagnostics */}
           <div className="lg:col-span-8 flex flex-col gap-3">
+            {/* Filter mode header bar */}
+            <div className="flex items-center justify-between px-3 py-2 bg-[#070B12]/90 rounded-xl border border-white/[0.08] text-xs font-mono">
+              <div className="flex items-center gap-2">
+                <span className="w-2 h-2 rounded-full bg-[#14F1D9] animate-ping" />
+                <span className="text-[#F0F4FF] font-bold">Neural Test Viewport</span>
+              </div>
+              <div className="flex items-center gap-1 bg-white/[0.04] p-1 rounded-lg border border-white/[0.08]">
+                {[
+                  { id: 'rgb', label: 'RGB Normal' },
+                  { id: 'thermal', label: 'FLIR Thermal' },
+                  { id: 'night', label: 'Night NVG' },
+                  { id: 'edges', label: 'Edge Scanner' },
+                ].map((mode) => (
+                  <button
+                    key={mode.id}
+                    onClick={() => {
+                      soundEffects.playClick();
+                      setTestVisionFilter(mode.id as any);
+                    }}
+                    className={`px-2.5 py-0.5 rounded text-[10px] font-bold transition-all cursor-pointer ${
+                      testVisionFilter === mode.id
+                        ? 'bg-[#14F1D9] text-[#070B12] shadow-[0_0_8px_#14F1D9]'
+                        : 'text-[#8B9AB4] hover:text-white'
+                    }`}
+                  >
+                    {mode.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+
             <div className="relative w-full h-[440px] rounded-2xl bg-black border border-[rgba(20,241,217,0.3)] overflow-hidden flex items-center justify-center shadow-2xl">
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 src={testImage}
                 alt="Test image"
-                className="w-full h-full object-cover select-none"
+                className={`w-full h-full object-cover select-none transition-all ${
+                  testVisionFilter === 'thermal'
+                    ? 'contrast-150 saturate-200 hue-rotate-180 brightness-110'
+                    : testVisionFilter === 'night'
+                    ? 'sepia(100%) hue-rotate(85deg) saturate(300%) brightness-90 contrast-125'
+                    : testVisionFilter === 'edges'
+                    ? 'grayscale(100%) contrast(200%) invert(10%)'
+                    : 'contrast-110'
+                }`}
               />
 
+              {/* Thermal color gradient overlay */}
+              {testVisionFilter === 'thermal' && (
+                <div className="absolute inset-0 bg-gradient-to-t from-red-600/30 via-yellow-500/20 to-blue-900/30 mix-blend-color pointer-events-none z-10" />
+              )}
+
               {/* Bounding Boxes */}
-              {testDetections.map((obj, i) => (
-                <div
-                  key={obj.id || i}
-                  className="absolute border-2 border-[#FF4D6D] z-20 transition-all"
-                  style={{
-                    left: `${obj.x}%`,
-                    top: `${obj.y}%`,
-                    width: `${obj.w}%`,
-                    height: `${obj.h}%`,
-                    borderColor: obj.color || '#FF4D6D',
-                    backgroundColor: `${obj.color || '#FF4D6D'}20`,
-                    boxShadow: `0 0 15px ${obj.color || '#FF4D6D'}60`,
-                  }}
-                >
+              {testDetections
+                .filter((obj) => obj.confidence >= confThreshold)
+                .map((obj, i) => (
                   <div
-                    className="absolute -top-6 left-[-2px] px-2 py-0.5 text-[10px] font-bold text-white whitespace-nowrap shadow flex items-center gap-1"
-                    style={{ backgroundColor: obj.color || '#FF4D6D' }}
+                    key={obj.id || i}
+                    className="absolute border-2 border-[#FF4D6D] z-20 transition-all"
+                    style={{
+                      left: `${obj.x}%`,
+                      top: `${obj.y}%`,
+                      width: `${obj.w}%`,
+                      height: `${obj.h}%`,
+                      borderColor: obj.color || '#FF4D6D',
+                      backgroundColor: `${obj.color || '#FF4D6D'}20`,
+                      boxShadow: `0 0 15px ${obj.color || '#FF4D6D'}60`,
+                    }}
                   >
-                    <span>{obj.label}</span>
-                    <span className="bg-black/40 px-1 py-0.2 rounded font-mono text-[9px]">
-                      {obj.confidence}%
-                    </span>
+                    <div
+                      className="absolute -top-6 left-[-2px] px-2 py-0.5 text-[10px] font-bold text-white whitespace-nowrap shadow flex items-center gap-1"
+                      style={{ backgroundColor: obj.color || '#FF4D6D' }}
+                    >
+                      <span>{obj.label}</span>
+                      <span className="bg-black/40 px-1 py-0.2 rounded font-mono text-[9px]">
+                        {obj.confidence}%
+                      </span>
+                    </div>
                   </div>
-                </div>
-              ))}
+                ))}
 
               {/* Scanning indicator */}
               {isTesting && (
@@ -519,6 +621,34 @@ export function YOLOv8ModelStudio({ onAnalyzeUploadedImage }: YOLOv8ModelStudioP
                   </p>
                 </div>
               )}
+            </div>
+
+            {/* Diagnostic Telemetry Strips */}
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+              <div className="p-2.5 rounded-xl bg-[#070B12]/80 border border-white/[0.08]">
+                <span className="text-[9px] font-mono text-[#8B9AB4] block">EST. FLAME CORE TEMP</span>
+                <span className="text-sm font-black text-[#FF4D6D]">
+                  {testResultSummary?.modelMeta?.coreTemperatureEst || (testDetections.some(d => d.label.includes('Flame')) ? '380 °C' : 'Ambient (24 °C)')}
+                </span>
+              </div>
+              <div className="p-2.5 rounded-xl bg-[#070B12]/80 border border-white/[0.08]">
+                <span className="text-[9px] font-mono text-[#8B9AB4] block">SMOKE OPACITY</span>
+                <span className="text-sm font-black text-[#FFB347]">
+                  {testResultSummary?.modelMeta?.smokeOpacityEst || (testDetections.some(d => d.label.includes('Smoke')) ? '74%' : '0% (Clear)')}
+                </span>
+              </div>
+              <div className="p-2.5 rounded-xl bg-[#070B12]/80 border border-white/[0.08]">
+                <span className="text-[9px] font-mono text-[#8B9AB4] block">FLASHOVER RISK</span>
+                <span className="text-sm font-black text-[#14F1D9]">
+                  {testResultSummary?.modelMeta?.flashoverRisk || (testDetections.some(d => d.label.includes('Flame')) ? 'HIGH' : 'LOW')}
+                </span>
+              </div>
+              <div className="p-2.5 rounded-xl bg-[#070B12]/80 border border-white/[0.08]">
+                <span className="text-[9px] font-mono text-[#8B9AB4] block">FIRE CLASSIFICATION</span>
+                <span className="text-sm font-black text-[#7C5CFF] truncate block">
+                  {testResultSummary?.modelMeta?.fireClass || (testDetections.some(d => d.label.includes('Flame')) ? 'Class A Combustible' : 'Normal')}
+                </span>
+              </div>
             </div>
 
             {testResultSummary && (

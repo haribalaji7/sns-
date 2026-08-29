@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { Search, Bell, Shield, ChevronDown, Wifi, Cpu, Database, Sparkles } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { LiveIndicator } from '@/components/ui';
+import { ThemeToggle } from '@/components/theme/ThemeToggle';
 import { useDashboardStore } from '@/store/dashboard';
 
 export function DashboardTopBar() {
@@ -25,16 +26,16 @@ export function DashboardTopBar() {
   ];
 
   return (
-    <header className="h-14 flex-shrink-0 flex items-center gap-4 px-5 border-b border-white/[0.06] bg-[rgba(7,11,18,0.8)] backdrop-blur-xl z-20">
+    <header className="h-14 flex-shrink-0 flex items-center gap-4 px-5 border-b border-border bg-card/85 dark:bg-[rgba(7,11,18,0.8)] backdrop-blur-xl z-20 transition-colors duration-300">
       {/* Live + System status */}
       <div className="flex items-center gap-4">
         <LiveIndicator color="red" size="sm" />
         <div className="hidden lg:flex items-center gap-3">
           {systemStatus.map((s) => (
             <div key={s.label} className="flex items-center gap-1.5">
-              <s.icon className="w-3 h-3 text-[#4A5568]" />
-              <span className="text-[10px] text-[#4A5568]">{s.label}:</span>
-              <span className={`text-[10px] font-medium ${s.ok ? 'text-[#22D3A5]' : 'text-[#FF4D6D]'}`}>{s.value}</span>
+              <s.icon className="w-3 h-3 text-muted-foreground" />
+              <span className="text-[10px] text-muted-foreground">{s.label}:</span>
+              <span className={`text-[10px] font-medium ${s.ok ? 'text-success' : 'text-danger'}`}>{s.value}</span>
             </div>
           ))}
         </div>
@@ -42,16 +43,16 @@ export function DashboardTopBar() {
 
       {/* Search */}
       <div className="flex-1 max-w-md mx-auto relative">
-        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-[#4A5568]" />
+        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-muted-foreground" />
         <input
           type="text"
           placeholder="Search incidents, zones, responders…"
           onFocus={() => setSearchFocused(true)}
           onBlur={() => setSearchFocused(false)}
-          className={`w-full h-8 pl-9 pr-4 rounded-xl text-xs text-[#F0F4FF] placeholder:text-[#4A5568] outline-none transition-all duration-200 ${
+          className={`w-full h-8 pl-9 pr-4 rounded-xl text-xs text-foreground placeholder:text-muted-foreground outline-none transition-all duration-200 ${
             searchFocused
-              ? 'bg-[rgba(255,255,255,0.07)] border border-[rgba(20,241,217,0.3)] shadow-[0_0_12px_rgba(20,241,217,0.1)]'
-              : 'bg-[rgba(255,255,255,0.04)] border border-transparent hover:border-[rgba(255,255,255,0.08)]'
+              ? 'bg-card border border-primary shadow-[0_0_12px_rgba(20,241,217,0.15)]'
+              : 'bg-black/5 dark:bg-white/[0.04] border border-border hover:border-primary/40'
           }`}
         />
       </div>
@@ -60,42 +61,45 @@ export function DashboardTopBar() {
       <div className="flex items-center gap-3 ml-auto">
         {/* Clock */}
         <div className="hidden md:flex flex-col items-end">
-          <span className="text-xs font-mono font-semibold text-[#F0F4FF] tabular-nums">{time}</span>
-          <span className="text-[9px] text-[#4A5568]">
+          <span className="text-xs font-mono font-semibold text-foreground tabular-nums">{time}</span>
+          <span className="text-[9px] text-muted-foreground">
             {new Date().toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })}
           </span>
         </div>
 
+        {/* Theme Switcher Toggle */}
+        <ThemeToggle />
+
         {/* AI Copilot Slide-over Button */}
         <button
           onClick={toggleCopilot}
-          className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-gradient-to-r from-[#14F1D9]/15 to-[#7C5CFF]/15 border border-[#14F1D9]/40 text-[#14F1D9] hover:bg-[#14F1D9]/25 transition-all shadow-[0_0_15px_rgba(20,241,217,0.2)] cursor-pointer text-xs font-bold"
+          className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-gradient-to-r from-primary/15 to-secondary/15 border border-primary/40 text-primary hover:bg-primary/25 transition-all shadow-[0_0_15px_rgba(20,241,217,0.2)] cursor-pointer text-xs font-bold"
           title="Open AI Copilot"
         >
-          <Sparkles className="w-3.5 h-3.5 text-[#14F1D9] animate-pulse" />
+          <Sparkles className="w-3.5 h-3.5 text-primary animate-pulse" />
           <span className="hidden sm:inline">AI Copilot</span>
         </button>
 
         {/* Notification bell */}
-        <button className="relative w-8 h-8 rounded-xl flex items-center justify-center text-[#8B9AB4] hover:text-[#F0F4FF] hover:bg-white/[0.06] transition-colors">
+        <button className="relative w-8 h-8 rounded-xl flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-black/5 dark:hover:bg-white/[0.06] transition-colors">
           <Bell className="w-4 h-4" />
           {metrics.activeIncidents > 0 && (
-            <span className="absolute -top-0.5 -right-0.5 w-4 h-4 rounded-full bg-[#FF4D6D] text-white text-[8px] font-bold flex items-center justify-center shadow-[0_0_6px_rgba(255,77,109,0.5)]">
+            <span className="absolute -top-0.5 -right-0.5 w-4 h-4 rounded-full bg-danger text-white text-[8px] font-bold flex items-center justify-center shadow-[0_0_6px_rgba(255,77,109,0.5)]">
               {metrics.activeIncidents}
             </span>
           )}
         </button>
 
         {/* User avatar */}
-        <button className="flex items-center gap-2 px-2.5 py-1.5 rounded-xl hover:bg-white/[0.05] transition-colors group">
-          <div className="w-7 h-7 rounded-full bg-gradient-to-br from-[#14F1D9] to-[#7C5CFF] flex items-center justify-center text-[10px] font-bold text-[#070B12]">
+        <button className="flex items-center gap-2 px-2.5 py-1.5 rounded-xl hover:bg-black/5 dark:hover:bg-white/[0.05] transition-colors group cursor-pointer">
+          <div className="w-7 h-7 rounded-full bg-gradient-to-br from-primary to-secondary flex items-center justify-center text-[10px] font-bold text-black">
             AK
           </div>
           <div className="hidden md:flex flex-col items-start">
-            <span className="text-[11px] font-medium text-[#F0F4FF]">Admin</span>
-            <span className="text-[9px] text-[#14F1D9]">Command Center</span>
+            <span className="text-[11px] font-medium text-foreground">Admin</span>
+            <span className="text-[9px] text-primary">Command Center</span>
           </div>
-          <ChevronDown className="w-3 h-3 text-[#4A5568] group-hover:text-[#8B9AB4] transition-colors hidden md:block" />
+          <ChevronDown className="w-3 h-3 text-muted-foreground group-hover:text-foreground transition-colors hidden md:block" />
         </button>
       </div>
     </header>

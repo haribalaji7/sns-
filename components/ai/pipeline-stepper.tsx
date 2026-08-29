@@ -27,6 +27,7 @@ export type PipelineStage =
 interface PipelineStepperProps {
   currentStage: PipelineStage;
   stageLatencies?: Record<string, number>;
+  isAnalyzing?: boolean;
 }
 
 const STAGES = [
@@ -39,7 +40,7 @@ const STAGES = [
   { id: 'dispatched', label: 'Incident Created', shortLabel: 'Dispatched', icon: Send, model: 'Supabase Realtime' },
 ];
 
-export function PipelineStepper({ currentStage, stageLatencies = {} }: PipelineStepperProps) {
+export function PipelineStepper({ currentStage, stageLatencies = {}, isAnalyzing = false }: PipelineStepperProps) {
   const getStageIndex = (stage: PipelineStage): number => {
     switch (stage) {
       case 'input': return 0;
@@ -78,8 +79,16 @@ export function PipelineStepper({ currentStage, stageLatencies = {} }: PipelineS
       {/* Stepper Flow Grid */}
       <div className="flex gap-3 overflow-x-auto pb-2 snap-x hide-scrollbar" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
         {STAGES.map((st, idx) => {
-          const isCompleted = idx < currentIndex || currentStage === 'dispatched' || currentStage === 'idle';
-          const isCurrent = idx === currentIndex && currentStage !== 'idle' && currentStage !== 'dispatched';
+          const isCompleted =
+            idx < currentIndex ||
+            (idx === 5 && currentStage === 'verification' && !isAnalyzing) ||
+            currentStage === 'dispatched' ||
+            currentStage === 'idle';
+          const isCurrent =
+            idx === currentIndex &&
+            currentStage !== 'idle' &&
+            currentStage !== 'dispatched' &&
+            !(idx === 5 && !isAnalyzing);
           const Icon = st.icon;
 
           return (

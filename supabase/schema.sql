@@ -23,7 +23,8 @@ DO $$ BEGIN
         'responder',
         'analyst',
         'security_officer',
-        'viewer'
+        'viewer',
+        'student'
     );
 EXCEPTION WHEN duplicate_object THEN null; END $$;
 
@@ -140,9 +141,26 @@ CREATE TABLE IF NOT EXISTS public.users (
     phone TEXT,
     avatar TEXT,
     department TEXT,
+    year TEXT,
+    blood_group TEXT,
+    emergency_contact TEXT,
+    is_hosteller BOOLEAN DEFAULT false,
     is_active BOOLEAN NOT NULL DEFAULT true,
     created_at TIMESTAMPTZ NOT NULL DEFAULT timezone('utc'::text, now()),
     updated_at TIMESTAMPTZ NOT NULL DEFAULT timezone('utc'::text, now())
+);
+
+-- AA. STUDENTS STATUS
+CREATE TABLE IF NOT EXISTS public.students_status (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    user_id UUID REFERENCES public.users(id) ON DELETE CASCADE,
+    status TEXT NOT NULL DEFAULT 'PENDING',
+    last_known_lat DOUBLE PRECISION,
+    last_known_lng DOUBLE PRECISION,
+    assembly_point_id TEXT,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT timezone('utc'::text, now()),
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT timezone('utc'::text, now()),
+    UNIQUE(user_id)
 );
 
 -- B. CAMPUS ZONES
@@ -453,6 +471,7 @@ ALTER TABLE public.evacuation_routes ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.ai_logs ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.sensors ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.incident_responder_assignments ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.students_status ENABLE ROW LEVEL SECURITY;
 
 CREATE OR REPLACE FUNCTION public.auth_user_role()
 RETURNS user_role AS $$
@@ -476,49 +495,105 @@ BEGIN RETURN (public.auth_user_role() IN ('admin'::user_role, 'dispatcher'::user
 $$ LANGUAGE plpgsql SECURITY DEFINER STABLE;
 
 -- Users policies
+DROP POLICY IF EXISTS "Users can view active profiles" ON public.users;
 CREATE POLICY "Users can view active profiles" ON public.users FOR SELECT TO authenticated, anon USING (is_active = true);
+
+-- Students Status policies
+DROP POLICY IF EXISTS "Users can view their own status and staff can view all" ON public.students_status;
+CREATE POLICY "Users can view their own status and staff can view all" ON public.students_status FOR SELECT TO authenticated USING (user_id = auth.uid() OR public.is_staff());
+
+DROP POLICY IF EXISTS "Students can insert their own status" ON public.students_status;
+CREATE POLICY "Students can insert their own status" ON public.students_status FOR INSERT TO authenticated WITH CHECK (user_id = auth.uid());
+
+DROP POLICY IF EXISTS "Students can update their own status" ON public.students_status;
+CREATE POLICY "Students can update their own status" ON public.students_status FOR UPDATE TO authenticated USING (user_id = auth.uid()) WITH CHECK (user_id = auth.uid());
+
+DROP POLICY IF EXISTS "Admins can delete students status" ON public.students_status;
+CREATE POLICY "Admins can delete students status" ON public.students_status FOR DELETE TO authenticated USING (public.is_admin());
+
+DROP POLICY IF EXISTS "Users can update their own profile" ON public.users;
 CREATE POLICY "Users can update their own profile" ON public.users FOR UPDATE TO authenticated USING (id = auth.uid()) WITH CHECK (id = auth.uid());
+
+DROP POLICY IF EXISTS "Admins have full access to users" ON public.users;
 CREATE POLICY "Admins have full access to users" ON public.users FOR ALL TO authenticated USING (public.is_admin());
 
 -- Incidents policies
+DROP POLICY IF EXISTS "Anyone can view incidents" ON public.incidents;
 CREATE POLICY "Anyone can view incidents" ON public.incidents FOR SELECT TO authenticated, anon USING (true);
+
+DROP POLICY IF EXISTS "Authenticated users can report incidents" ON public.incidents;
 CREATE POLICY "Authenticated users can report incidents" ON public.incidents FOR INSERT TO authenticated WITH CHECK (true);
+
+DROP POLICY IF EXISTS "Staff and assigned responders can update incidents" ON public.incidents;
 CREATE POLICY "Staff and assigned responders can update incidents" ON public.incidents FOR UPDATE TO authenticated USING (
     public.is_dispatcher_or_admin() OR
     EXISTS (SELECT 1 FROM public.responders r WHERE r.user_id = auth.uid() AND (r.id = ANY(public.incidents.assigned_responders) OR r.current_incident_id = public.incidents.id))
 );
+
+DROP POLICY IF EXISTS "Admins can delete incidents" ON public.incidents;
 CREATE POLICY "Admins can delete incidents" ON public.incidents FOR DELETE TO authenticated USING (public.is_admin());
 
 -- Responders policies
+DROP POLICY IF EXISTS "Anyone authenticated can view responders" ON public.responders;
 CREATE POLICY "Anyone authenticated can view responders" ON public.responders FOR SELECT TO authenticated, anon USING (true);
+
+DROP POLICY IF EXISTS "Dispatchers and admins can insert responders" ON public.responders;
 CREATE POLICY "Dispatchers and admins can insert responders" ON public.responders FOR INSERT TO authenticated WITH CHECK (public.is_dispatcher_or_admin());
+
+DROP POLICY IF EXISTS "Responders and dispatchers can update responder details" ON public.responders;
 CREATE POLICY "Responders and dispatchers can update responder details" ON public.responders FOR UPDATE TO authenticated USING (public.is_dispatcher_or_admin() OR user_id = auth.uid()) WITH CHECK (public.is_dispatcher_or_admin() OR user_id = auth.uid());
+
+DROP POLICY IF EXISTS "Admins can delete responders" ON public.responders;
 CREATE POLICY "Admins can delete responders" ON public.responders FOR DELETE TO authenticated USING (public.is_admin());
 
 -- Alerts policies
+DROP POLICY IF EXISTS "Anyone can view alerts" ON public.alerts;
 CREATE POLICY "Anyone can view alerts" ON public.alerts FOR SELECT TO authenticated, anon USING (true);
+
+DROP POLICY IF EXISTS "Staff can insert alerts" ON public.alerts;
 CREATE POLICY "Staff can insert alerts" ON public.alerts FOR INSERT TO authenticated WITH CHECK (public.is_staff());
+
+DROP POLICY IF EXISTS "Users can acknowledge alerts" ON public.alerts;
 CREATE POLICY "Users can acknowledge alerts" ON public.alerts FOR UPDATE TO authenticated USING (true) WITH CHECK (true);
+
+DROP POLICY IF EXISTS "Admins can delete alerts" ON public.alerts;
 CREATE POLICY "Admins can delete alerts" ON public.alerts FOR DELETE TO authenticated USING (public.is_admin());
 
 -- Evacuation routes policies
+DROP POLICY IF EXISTS "Public can view evacuation routes" ON public.evacuation_routes;
 CREATE POLICY "Public can view evacuation routes" ON public.evacuation_routes FOR SELECT TO authenticated, anon USING (true);
+
+DROP POLICY IF EXISTS "Dispatchers and admins can manage evacuation routes" ON public.evacuation_routes;
 CREATE POLICY "Dispatchers and admins can manage evacuation routes" ON public.evacuation_routes FOR ALL TO authenticated USING (public.is_dispatcher_or_admin()) WITH CHECK (public.is_dispatcher_or_admin());
 
 -- AI logs policies
+DROP POLICY IF EXISTS "Staff can view AI logs" ON public.ai_logs;
 CREATE POLICY "Staff can view AI logs" ON public.ai_logs FOR SELECT TO authenticated USING (public.is_staff());
+
+DROP POLICY IF EXISTS "Staff can insert AI logs" ON public.ai_logs;
 CREATE POLICY "Staff can insert AI logs" ON public.ai_logs FOR INSERT TO authenticated WITH CHECK (public.is_staff());
+
+DROP POLICY IF EXISTS "Admins can delete AI logs" ON public.ai_logs;
 CREATE POLICY "Admins can delete AI logs" ON public.ai_logs FOR DELETE TO authenticated USING (public.is_admin());
 
 -- Campus zones & Sensors policies
+DROP POLICY IF EXISTS "Anyone can view campus zones" ON public.campus_zones;
 CREATE POLICY "Anyone can view campus zones" ON public.campus_zones FOR SELECT TO authenticated, anon USING (true);
+
+DROP POLICY IF EXISTS "Staff can manage campus zones" ON public.campus_zones;
 CREATE POLICY "Staff can manage campus zones" ON public.campus_zones FOR ALL TO authenticated USING (public.is_dispatcher_or_admin()) WITH CHECK (public.is_dispatcher_or_admin());
 
+DROP POLICY IF EXISTS "Anyone can view sensors" ON public.sensors;
 CREATE POLICY "Anyone can view sensors" ON public.sensors FOR SELECT TO authenticated, anon USING (true);
+
+DROP POLICY IF EXISTS "Staff can manage sensors" ON public.sensors;
 CREATE POLICY "Staff can manage sensors" ON public.sensors FOR ALL TO authenticated USING (public.is_dispatcher_or_admin()) WITH CHECK (public.is_dispatcher_or_admin());
 
 -- Incident Responder Assignments policies
+DROP POLICY IF EXISTS "Anyone authenticated can view assignments" ON public.incident_responder_assignments;
 CREATE POLICY "Anyone authenticated can view assignments" ON public.incident_responder_assignments FOR SELECT TO authenticated, anon USING (true);
+
+DROP POLICY IF EXISTS "Staff can manage assignments" ON public.incident_responder_assignments;
 CREATE POLICY "Staff can manage assignments" ON public.incident_responder_assignments FOR ALL TO authenticated USING (public.is_staff()) WITH CHECK (public.is_staff());
 
 -- ==========================================
@@ -538,13 +613,15 @@ DO $$ BEGIN
     END IF;
 END $$;
 
-ALTER PUBLICATION supabase_realtime ADD TABLE public.incidents;
-ALTER PUBLICATION supabase_realtime ADD TABLE public.responders;
-ALTER PUBLICATION supabase_realtime ADD TABLE public.alerts;
-ALTER PUBLICATION supabase_realtime ADD TABLE public.evacuation_routes;
-ALTER PUBLICATION supabase_realtime ADD TABLE public.ai_logs;
-ALTER PUBLICATION supabase_realtime ADD TABLE public.sensors;
-ALTER PUBLICATION supabase_realtime ADD TABLE public.campus_zones;
+DO $$ BEGIN ALTER PUBLICATION supabase_realtime ADD TABLE public.students_status; EXCEPTION WHEN duplicate_object THEN null; END $$;
+
+DO $$ BEGIN ALTER PUBLICATION supabase_realtime ADD TABLE public.incidents; EXCEPTION WHEN duplicate_object THEN null; END $$;
+DO $$ BEGIN ALTER PUBLICATION supabase_realtime ADD TABLE public.responders; EXCEPTION WHEN duplicate_object THEN null; END $$;
+DO $$ BEGIN ALTER PUBLICATION supabase_realtime ADD TABLE public.alerts; EXCEPTION WHEN duplicate_object THEN null; END $$;
+DO $$ BEGIN ALTER PUBLICATION supabase_realtime ADD TABLE public.evacuation_routes; EXCEPTION WHEN duplicate_object THEN null; END $$;
+DO $$ BEGIN ALTER PUBLICATION supabase_realtime ADD TABLE public.ai_logs; EXCEPTION WHEN duplicate_object THEN null; END $$;
+DO $$ BEGIN ALTER PUBLICATION supabase_realtime ADD TABLE public.sensors; EXCEPTION WHEN duplicate_object THEN null; END $$;
+DO $$ BEGIN ALTER PUBLICATION supabase_realtime ADD TABLE public.campus_zones; EXCEPTION WHEN duplicate_object THEN null; END $$;
 
 -- ==========================================
 -- 7. PERFORMANCE INDEXES

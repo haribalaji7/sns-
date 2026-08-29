@@ -1,6 +1,5 @@
-// ─── Google Maps Dark Command Center Style ──────────────────────────────────
-// Tailored for CampusShield AI with deep space navy background (#070B12),
-// glowing roads, subdued POIs, and maximum marker contrast.
+// ─── Google Maps Map Styles for CampusShield AI ─────────────────────────────
+// Supports Dark Command Center (#070B12) and Light Enterprise (#F5F7FB).
 
 export const DARK_COMMAND_CENTER_MAP_STYLE: google.maps.MapTypeStyle[] = [
   {
@@ -22,8 +21,12 @@ export const DARK_COMMAND_CENTER_MAP_STYLE: google.maps.MapTypeStyle[] = [
   },
   {
     featureType: 'poi',
-    elementType: 'labels.text.fill',
-    stylers: [{ color: '#5a6e8c' }],
+    elementType: 'labels',
+    stylers: [{ visibility: 'off' }],
+  },
+  {
+    featureType: 'poi.business',
+    stylers: [{ visibility: 'off' }],
   },
   {
     featureType: 'poi',
@@ -37,8 +40,13 @@ export const DARK_COMMAND_CENTER_MAP_STYLE: google.maps.MapTypeStyle[] = [
   },
   {
     featureType: 'poi.park',
-    elementType: 'labels.text.fill',
-    stylers: [{ color: '#00e59b' }, { opacity: 0.6 }],
+    elementType: 'labels',
+    stylers: [{ visibility: 'off' }],
+  },
+  {
+    featureType: 'transit',
+    elementType: 'labels',
+    stylers: [{ visibility: 'off' }],
   },
   {
     featureType: 'road',
@@ -94,5 +102,100 @@ export const DARK_COMMAND_CENTER_MAP_STYLE: google.maps.MapTypeStyle[] = [
     featureType: 'water',
     elementType: 'labels.text.stroke',
     stylers: [{ color: '#05111f' }],
+  },
+];
+
+export const LIGHT_COMMAND_CENTER_MAP_STYLE: google.maps.MapTypeStyle[] = [
+  {
+    elementType: 'geometry',
+    stylers: [{ color: '#f5f7fb' }],
+  },
+  {
+    elementType: 'labels.text.stroke',
+    stylers: [{ color: '#ffffff' }],
+  },
+  {
+    elementType: 'labels.text.fill',
+    stylers: [{ color: '#475569' }],
+  },
+  {
+    featureType: 'administrative.locality',
+    elementType: 'labels.text.fill',
+    stylers: [{ color: '#0ea5a5' }],
+  },
+  {
+    featureType: 'poi',
+    elementType: 'labels.text.fill',
+    stylers: [{ color: '#64748b' }],
+  },
+  {
+    featureType: 'poi',
+    elementType: 'geometry',
+    stylers: [{ color: '#eef2f6' }],
+  },
+  {
+    featureType: 'poi.park',
+    elementType: 'geometry',
+    stylers: [{ color: '#dcfce7' }],
+  },
+  {
+    featureType: 'poi.park',
+    elementType: 'labels.text.fill',
+    stylers: [{ color: '#16a34a' }],
+  },
+  {
+    featureType: 'road',
+    elementType: 'geometry',
+    stylers: [{ color: '#ffffff' }],
+  },
+  {
+    featureType: 'road',
+    elementType: 'geometry.stroke',
+    stylers: [{ color: '#e2e8f0' }],
+  },
+  {
+    featureType: 'road',
+    elementType: 'labels.text.fill',
+    stylers: [{ color: '#334155' }],
+  },
+  {
+    featureType: 'road.highway',
+    elementType: 'geometry',
+    stylers: [{ color: '#fed7aa' }],
+  },
+  {
+    featureType: 'road.highway',
+    elementType: 'geometry.stroke',
+    stylers: [{ color: '#fdba74' }],
+  },
+  {
+    featureType: 'road.highway',
+    elementType: 'labels.text.fill',
+    stylers: [{ color: '#9a3412' }],
+  },
+  {
+    featureType: 'transit',
+    elementType: 'geometry',
+    stylers: [{ color: '#f1f5f9' }],
+  },
+  {
+    featureType: 'transit.station',
+    elementType: 'labels.text.fill',
+    stylers: [{ color: '#6d5ef7' }],
+  },
+  {
+    featureType: 'water',
+    elementType: 'geometry',
+    stylers: [{ color: '#e0f2fe' }],
+  },
+  {
+    featureType: 'water',
+    elementType: 'labels.text.fill',
+    stylers: [{ color: '#0ea5a5' }],
+  },
+  {
+    featureType: 'water',
+    elementType: 'labels.text.stroke',
+    stylers: [{ color: '#bae6fd' }],
   },
 ];

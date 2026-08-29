@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { motion } from 'framer-motion';
 import { Shield, Radio, ArrowRight, Activity, BellRing, Sparkles, Layers } from 'lucide-react';
 import { GradientButton } from '@/components/ui';
+import { ThemeToggle } from '@/components/theme/ThemeToggle';
 
 export function LandingNavbar() {
   const [scrolled, setScrolled] = useState(false);
@@ -82,17 +83,38 @@ export function LandingNavbar() {
             <span>SYSTEM ACTIVE · 224 SENSORS</span>
           </div>
 
-          <Link href="/dashboard">
-            <GradientButton
-              variant="primary"
-              size="sm"
-              icon={<ArrowRight className="w-3.5 h-3.5" />}
-              iconPosition="right"
-              className="text-xs font-semibold shadow-[0_0_20px_rgba(20,241,217,0.35)] hover:shadow-[0_0_30px_rgba(20,241,217,0.6)]"
-            >
-              Launch Command Center
-            </GradientButton>
-          </Link>
+          <div className="flex items-center gap-2">
+            <ThemeToggle />
+            <Link href="/security/login">
+              <GradientButton
+                variant="outline"
+                size="sm"
+                className="hidden md:flex text-xs font-semibold px-3 border-[#14F1D9]/30 text-[#14F1D9] hover:border-[#14F1D9]/60 hover:bg-[#14F1D9]/10"
+              >
+                Security Portal
+              </GradientButton>
+            </Link>
+            <Link href="/student/login">
+              <GradientButton
+                variant="outline"
+                size="sm"
+                className="hidden sm:flex text-xs font-semibold px-3 border-[#7C5CFF]/30 text-[#F0F4FF] hover:border-[#7C5CFF]/60 hover:bg-[#7C5CFF]/10"
+              >
+                Student Portal
+              </GradientButton>
+            </Link>
+            <Link href="/admin/login">
+              <GradientButton
+                variant="primary"
+                size="sm"
+                icon={<ArrowRight className="w-3.5 h-3.5" />}
+                iconPosition="right"
+                className="text-xs font-semibold shadow-[0_0_20px_rgba(20,241,217,0.35)] hover:shadow-[0_0_30px_rgba(20,241,217,0.6)]"
+              >
+                Admin Login
+              </GradientButton>
+            </Link>
+          </div>
         </div>
       </div>
     </motion.header>

@@ -9,7 +9,6 @@ import React, { useEffect, useRef, useState, Suspense, useCallback, useMemo } fr
 import { Canvas, useFrame, useThree } from '@react-three/fiber';
 import { OrbitControls, Stars, Html } from '@react-three/drei';
 import { EffectComposer, Bloom, ChromaticAberration, Vignette } from '@react-three/postprocessing';
-import { BlendFunction } from 'postprocessing';
 import { motion, AnimatePresence } from 'framer-motion';
 import * as THREE from 'three';
 import {
@@ -760,7 +759,6 @@ export default function Scene() {
               />
               <ChromaticAberration
                 offset={new THREE.Vector2(0.0018, 0.0018)}
-                blendFunction={BlendFunction.NORMAL}
               />
               <Vignette eskil={false} offset={0.1} darkness={1.1} />
             </EffectComposer>

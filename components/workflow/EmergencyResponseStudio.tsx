@@ -185,8 +185,8 @@ export function EmergencyResponseStudio() {
           <EmergencyLifecycleTimeline
             currentStateIndex={stateIndex}
             onSelectState={(idx) => {
+              soundEffects.playClick();
               setStateIndex(idx);
-              handleStateTransition(idx);
             }}
           />
         </div>

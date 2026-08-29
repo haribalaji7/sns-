@@ -1,4 +1,4 @@
-import { supabase } from './client';
+import { supabase, isSupabaseConfigured } from './client';
 import type { Database } from './database.types';
 
 type IncidentRow = Database['public']['Tables']['incidents']['Row'];
@@ -14,6 +14,10 @@ export function subscribeToIncidents(
   onUpdate?: (incident: IncidentRow) => void,
   onDelete?: (id: string) => void,
 ) {
+  if (!isSupabaseConfigured) {
+    return () => {};
+  }
+
   const channel = supabase
     .channel('realtime:incidents')
     .on(
@@ -53,6 +57,10 @@ export function subscribeToResponders(
   onUpdate: (responder: ResponderRow) => void,
   onInsert?: (responder: ResponderRow) => void,
 ) {
+  if (!isSupabaseConfigured) {
+    return () => {};
+  }
+
   const channel = supabase
     .channel('realtime:responders')
     .on(
@@ -80,6 +88,10 @@ export function subscribeToResponders(
  * Subscribes to high-priority safety alerts
  */
 export function subscribeToAlerts(onNewAlert: (alert: AlertRow) => void) {
+  if (!isSupabaseConfigured) {
+    return () => {};
+  }
+
   const channel = supabase
     .channel('realtime:alerts')
     .on(
@@ -100,6 +112,10 @@ export function subscribeToAlerts(onNewAlert: (alert: AlertRow) => void) {
  * Subscribes to live sensor telemetry streams
  */
 export function subscribeToSensors(onSensorUpdate: (sensor: SensorRow) => void) {
+  if (!isSupabaseConfigured) {
+    return () => {};
+  }
+
   const channel = supabase
     .channel('realtime:sensors')
     .on(
@@ -115,3 +131,4 @@ export function subscribeToSensors(onSensorUpdate: (sensor: SensorRow) => void) 
     supabase.removeChannel(channel);
   };
 }
+

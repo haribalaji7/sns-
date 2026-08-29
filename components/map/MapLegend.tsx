@@ -23,7 +23,7 @@ export function MapLegend({ className }: MapLegendProps) {
   return (
     <div
       className={cn(
-        'glass rounded-2xl p-3 border border-[rgba(20,241,217,0.25)] bg-[#070B12]/95 backdrop-blur-xl shadow-2xl z-20 select-none text-xs font-mono transition-all',
+        'rounded-2xl p-3 border border-[rgba(20,241,217,0.25)] bg-[#0A0F1A]/95 bg-gradient-to-br from-[#0D1424]/95 to-[#070B12]/98 backdrop-blur-xl shadow-2xl z-20 select-none text-xs font-mono transition-all',
         className,
       )}
     >

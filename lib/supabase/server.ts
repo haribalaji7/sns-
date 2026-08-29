@@ -1,9 +1,14 @@
 import { createClient } from '@supabase/supabase-js';
 import type { Database } from './database.types';
+import { isSupabaseConfigured } from './client';
 
 export function createServerSupabaseClient() {
-  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://mock-supabase.supabase.co';
-  const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'mock-anon-key';
+  const supabaseUrl = isSupabaseConfigured
+    ? (process.env.NEXT_PUBLIC_SUPABASE_URL as string)
+    : 'https://placeholder.supabase.co';
+  const supabaseAnonKey = isSupabaseConfigured
+    ? (process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY as string)
+    : 'placeholder-anon-key';
 
   return createClient<Database>(supabaseUrl, supabaseAnonKey, {
     auth: {
@@ -14,8 +19,12 @@ export function createServerSupabaseClient() {
 }
 
 export function createAdminSupabaseClient() {
-  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://mock-supabase.supabase.co';
-  const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY || 'mock-service-role-key';
+  const supabaseUrl = isSupabaseConfigured
+    ? (process.env.NEXT_PUBLIC_SUPABASE_URL as string)
+    : 'https://placeholder.supabase.co';
+  const serviceRoleKey = isSupabaseConfigured
+    ? (process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'placeholder-key')
+    : 'placeholder-service-role-key';
 
   return createClient<Database>(supabaseUrl, serviceRoleKey, {
     auth: {
@@ -24,3 +33,4 @@ export function createAdminSupabaseClient() {
     },
   });
 }
+

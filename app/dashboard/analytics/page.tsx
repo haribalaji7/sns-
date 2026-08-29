@@ -183,7 +183,7 @@ export default function AnalyticsDashboardPage() {
   };
 
   return (
-    <div className="p-4 sm:p-6 space-y-6 overflow-y-auto max-w-[1600px] mx-auto text-[#F0F4FF]">
+    <div className="p-4 sm:p-6 space-y-6 overflow-y-auto max-w-[1600px] mx-auto text-foreground">
       {/* ─── Top Executive Header ───────────────────────────────────────── */}
       <div className="flex flex-wrap items-center justify-between gap-4 pb-4 border-b border-white/[0.08]">
         <div>
@@ -192,13 +192,13 @@ export default function AnalyticsDashboardPage() {
               <Activity className="w-5 h-5" />
             </div>
             <div>
-              <h1 className="text-2xl font-black tracking-tight text-[#F0F4FF] flex items-center gap-2.5">
+              <h1 className="text-2xl font-black tracking-tight text-foreground flex items-center gap-2.5">
                 Executive AI Analytics Dashboard
                 <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded-full bg-[#14F1D9]/15 text-[#14F1D9] border border-[#14F1D9]/40 uppercase">
                   Q3 INTELLIGENCE
                 </span>
               </h1>
-              <p className="text-xs text-[#8B9AB4]">
+              <p className="text-xs text-muted-foreground">
                 Enterprise campus safety metrics, incident trends, responder SLAs & automated AI insights
               </p>
             </div>
@@ -208,7 +208,7 @@ export default function AnalyticsDashboardPage() {
         {/* Global Action Tools */}
         <div className="flex items-center gap-2.5 flex-wrap">
           {/* Time Range Selector */}
-          <div className="flex items-center gap-1 p-1 rounded-xl glass border border-white/[0.08] bg-[#070B12]/80 text-xs font-mono">
+          <div className="flex items-center gap-1 p-1 rounded-xl glass border border-white/[0.08] bg-card/80 dark:bg-[#070B12]/80 text-xs font-mono">
             {(['today', 'week', 'month', 'year'] as const).map((r) => (
               <button
                 key={r}
@@ -218,8 +218,8 @@ export default function AnalyticsDashboardPage() {
                 }}
                 className={`px-3 py-1.5 rounded-lg font-bold capitalize transition-all cursor-pointer ${
                   timeRange === r
-                    ? 'bg-gradient-to-r from-[#14F1D9] to-[#22D3A5] text-[#070B12] shadow-md'
-                    : 'text-[#8B9AB4] hover:text-white'
+                    ? 'bg-gradient-to-r from-[#14F1D9] to-[#22D3A5] text-primary-foreground dark:text-[#070B12] shadow-md'
+                    : 'text-muted-foreground hover:text-foreground'
                 }`}
               >
                 {r === 'year' ? 'Custom' : r}
@@ -229,7 +229,7 @@ export default function AnalyticsDashboardPage() {
 
           <button
             onClick={handleExportPDF}
-            className="px-3.5 py-2 rounded-xl bg-white/5 hover:bg-white/10 text-xs font-bold font-mono text-[#F0F4FF] border border-white/10 flex items-center gap-2 transition-all cursor-pointer"
+            className="px-3.5 py-2 rounded-xl bg-black/5 dark:bg-white/5 hover:bg-black/10 dark:hover:bg-white/10 text-xs font-bold font-mono text-foreground border border-border transition-all cursor-pointer"
           >
             <Printer className="w-3.5 h-3.5 text-[#14F1D9]" />
             <span>Export Report</span>
@@ -254,10 +254,10 @@ export default function AnalyticsDashboardPage() {
               initial={{ opacity: 0, y: 15 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: idx * 0.05 }}
-              className="p-4 rounded-3xl glass border border-white/[0.08] bg-[#070B12]/80 backdrop-blur-md flex flex-col justify-between shadow-lg relative overflow-hidden group hover:border-[#14F1D9]/40 transition-all"
+              className="p-4 rounded-3xl glass border border-border bg-card/80 dark:bg-[#070B12]/80 backdrop-blur-md flex flex-col justify-between shadow-lg relative overflow-hidden group hover:border-[#14F1D9]/40 transition-all"
             >
               <div className="flex items-center justify-between mb-2">
-                <span className="text-[10px] font-mono uppercase font-bold text-[#8B9AB4] truncate">
+                <span className="text-[10px] font-mono uppercase font-bold text-muted-foreground truncate">
                   {kpi.label}
                 </span>
                 <div
@@ -269,7 +269,7 @@ export default function AnalyticsDashboardPage() {
               </div>
 
               <div>
-                <span className="text-2xl font-black font-mono tracking-tight text-[#F0F4FF]">
+                <span className="text-2xl font-black font-mono tracking-tight text-foreground">
                   {kpi.val}
                 </span>
                 <div className="flex items-center gap-1 mt-1 text-[10px] font-mono">
@@ -290,14 +290,14 @@ export default function AnalyticsDashboardPage() {
       </div>
 
       {/* ─── AI Insights Panel ─────────────────────────────────────────── */}
-      <div className="rounded-3xl glass border border-[rgba(20,241,217,0.3)] bg-gradient-to-br from-[#14F1D9]/[0.06] via-[#070B12] to-transparent p-5 backdrop-blur-xl shadow-2xl">
+      <div className="rounded-3xl glass border border-[rgba(20,241,217,0.3)] bg-gradient-to-br from-[rgba(20,241,217,0.06)] via-card dark:via-[#070B12] to-transparent p-5 backdrop-blur-xl shadow-2xl">
         <div className="flex items-center justify-between mb-4 pb-3 border-b border-white/[0.08]">
           <div className="flex items-center gap-2.5">
             <div className="w-8 h-8 rounded-xl bg-[#14F1D9]/20 border border-[#14F1D9]/40 flex items-center justify-center text-[#14F1D9]">
               <Sparkles className="w-4 h-4" />
             </div>
             <div>
-              <h2 className="text-sm font-bold text-[#F0F4FF] flex items-center gap-2">
+              <h2 className="text-sm font-bold text-foreground flex items-center gap-2">
                 Autonomous AI Insights & Executive Recommendations
               </h2>
               <p className="text-[10px] text-[#8B9AB4]">
@@ -348,16 +348,16 @@ export default function AnalyticsDashboardPage() {
       {/* ─── CHARTS ROW 1: Monthly Incidents & Realtime Response Time ──── */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-5">
         {/* Chart 1: Monthly Incidents Multi-Bar */}
-        <div className="lg:col-span-7 rounded-3xl glass border border-white/[0.08] bg-[#070B12]/85 p-5 backdrop-blur-md flex flex-col justify-between">
+        <div className="lg:col-span-7 rounded-3xl glass border border-border bg-card/85 dark:bg-[#070B12]/85 p-5 backdrop-blur-md flex flex-col justify-between">
           <div className="flex items-center justify-between mb-4">
             <div>
-              <h3 className="text-sm font-bold text-[#F0F4FF] flex items-center gap-2">
+              <h3 className="text-sm font-bold text-foreground flex items-center gap-2">
                 <BarChart className="w-4 h-4 text-[#14F1D9]" />
                 Monthly Incident Trajectory & Category Breakdown
               </h3>
-              <p className="text-[10px] text-[#8B9AB4]">Year-to-date monthly volume across core hazard types</p>
+              <p className="text-[10px] text-muted-foreground">Year-to-date monthly volume across core hazard types</p>
             </div>
-            <span className="text-[10px] font-mono text-[#8B9AB4]">JAN – AUG 2026</span>
+            <span className="text-[10px] font-mono text-muted-foreground">JAN – AUG 2026</span>
           </div>
 
           <div className="w-full h-72">
@@ -380,14 +380,14 @@ export default function AnalyticsDashboardPage() {
         </div>
 
         {/* Chart 2: Realtime Response Time Curve with SLA Benchmark */}
-        <div className="lg:col-span-5 rounded-3xl glass border border-white/[0.08] bg-[#070B12]/85 p-5 backdrop-blur-md flex flex-col justify-between">
+        <div className="lg:col-span-5 rounded-3xl glass border border-border bg-card/85 dark:bg-[#070B12]/85 p-5 backdrop-blur-md flex flex-col justify-between">
           <div className="flex items-center justify-between mb-4">
             <div>
-              <h3 className="text-sm font-bold text-[#F0F4FF] flex items-center gap-2">
+              <h3 className="text-sm font-bold text-foreground flex items-center gap-2">
                 <TrendingUp className="w-4 h-4 text-[#22D3A5]" />
                 Hourly Response Time Trend vs 180s SLA
               </h3>
-              <p className="text-[10px] text-[#8B9AB4]">Target benchmark: &le; 180s time-to-scene</p>
+              <p className="text-[10px] text-muted-foreground">Target benchmark: &le; 180s time-to-scene</p>
             </div>
             <span className="text-[10px] font-mono text-[#22D3A5] font-bold">PASSING SLA</span>
           </div>
@@ -418,10 +418,10 @@ export default function AnalyticsDashboardPage() {
       {/* ─── CHARTS ROW 2: Severity Distribution, Building Risk & Workload ─ */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
         {/* Severity Donut Chart */}
-        <div className="rounded-3xl glass border border-white/[0.08] bg-[#070B12]/85 p-5 backdrop-blur-md flex flex-col justify-between">
+        <div className="rounded-3xl glass border border-border bg-card/85 dark:bg-[#070B12]/85 p-5 backdrop-blur-md flex flex-col justify-between">
           <div className="flex items-center justify-between mb-2">
-            <h3 className="text-sm font-bold text-[#F0F4FF]">Severity Distribution</h3>
-            <span className="text-[10px] font-mono text-[#8B9AB4]">142 Total</span>
+            <h3 className="text-sm font-bold text-foreground">Severity Distribution</h3>
+            <span className="text-[10px] font-mono text-muted-foreground">142 Total</span>
           </div>
 
           <div className="w-full h-56 relative flex items-center justify-center">
@@ -444,7 +444,7 @@ export default function AnalyticsDashboardPage() {
               </PieChart>
             </ResponsiveContainer>
             <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
-              <span className="text-xs font-mono text-[#8B9AB4]">Critical</span>
+              <span className="text-xs font-mono text-muted-foreground">Critical</span>
               <span className="text-xl font-black font-mono text-[#FF4D6D]">5.6%</span>
             </div>
           </div>
@@ -453,17 +453,17 @@ export default function AnalyticsDashboardPage() {
             {SEVERITY_DISTRIBUTION.map((s, i) => (
               <div key={i} className="flex items-center gap-1.5">
                 <span className="w-2 h-2 rounded-full" style={{ backgroundColor: s.color }} />
-                <span className="text-[#8B9AB4]">{s.name}:</span>
-                <strong className="text-white ml-auto">{s.value}</strong>
+                <span className="text-muted-foreground">{s.name}:</span>
+                <strong className="text-foreground ml-auto">{s.value}</strong>
               </div>
             ))}
           </div>
         </div>
 
         {/* Building Risk Ranking Horizontal Bars */}
-        <div className="rounded-3xl glass border border-white/[0.08] bg-[#070B12]/85 p-5 backdrop-blur-md flex flex-col justify-between">
+        <div className="rounded-3xl glass border border-border bg-card/85 dark:bg-[#070B12]/85 p-5 backdrop-blur-md flex flex-col justify-between">
           <div className="flex items-center justify-between mb-3">
-            <h3 className="text-sm font-bold text-[#F0F4FF]">Building Risk Ranking</h3>
+            <h3 className="text-sm font-bold text-foreground">Building Risk Ranking</h3>
             <span className="text-[10px] font-mono text-[#FF4D6D]">TOP HAZARD ZONES</span>
           </div>
 
@@ -471,12 +471,12 @@ export default function AnalyticsDashboardPage() {
             {BUILDING_RISK_RANKING.map((b, i) => (
               <div key={i} className="space-y-1">
                 <div className="flex items-center justify-between text-xs">
-                  <span className="font-bold text-[#F0F4FF]">{b.building}</span>
+                  <span className="font-bold text-foreground">{b.building}</span>
                   <span className="font-mono text-[11px] font-bold" style={{ color: b.color }}>
                     Score: {b.risk}/100 · {b.incidents} inc
                   </span>
                 </div>
-                <div className="w-full h-2 rounded-full bg-white/[0.05] overflow-hidden">
+                <div className="w-full h-2 rounded-full bg-black/5 dark:bg-white/5 overflow-hidden">
                   <div
                     className="h-full rounded-full transition-all duration-700"
                     style={{ width: `${b.risk}%`, backgroundColor: b.color }}
@@ -488,18 +488,18 @@ export default function AnalyticsDashboardPage() {
         </div>
 
         {/* Responder Squad Workload Breakdown */}
-        <div className="rounded-3xl glass border border-white/[0.08] bg-[#070B12]/85 p-5 backdrop-blur-md flex flex-col justify-between">
+        <div className="rounded-3xl glass border border-border bg-card/85 dark:bg-[#070B12]/85 p-5 backdrop-blur-md flex flex-col justify-between">
           <div className="flex items-center justify-between mb-3">
-            <h3 className="text-sm font-bold text-[#F0F4FF]">Responder Workload & Capacity</h3>
+            <h3 className="text-sm font-bold text-foreground">Responder Workload & Capacity</h3>
             <span className="text-[10px] font-mono text-[#22D3A5]">94.2% ON-TIME</span>
           </div>
 
           <div className="space-y-2.5 my-auto">
             {RESPONDER_WORKLOAD.map((r, i) => (
-              <div key={i} className="p-2.5 rounded-2xl bg-white/[0.02] border border-white/[0.04] flex items-center justify-between text-xs">
+              <div key={i} className="p-2.5 rounded-2xl bg-black/5 dark:bg-white/[0.02] border border-border flex items-center justify-between text-xs">
                 <div>
-                  <p className="font-bold text-[#F0F4FF]">{r.team}</p>
-                  <p className="text-[10px] font-mono text-[#8B9AB4]">
+                  <p className="font-bold text-foreground">{r.team}</p>
+                  <p className="text-[10px] font-mono text-muted-foreground">
                     {r.deployedHours}h deployed / {r.capacity}h capacity
                   </p>
                 </div>
@@ -515,14 +515,14 @@ export default function AnalyticsDashboardPage() {
       {/* ─── CHARTS ROW 3: Interactive Heatmap & Incident Type Breakdown ─ */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-5">
         {/* Interactive 24-Hour Intensity Heatmap Grid */}
-        <div className="lg:col-span-8 rounded-3xl glass border border-white/[0.08] bg-[#070B12]/85 p-5 backdrop-blur-md">
+        <div className="lg:col-span-8 rounded-3xl glass border border-border bg-card/85 dark:bg-[#070B12]/85 p-5 backdrop-blur-md">
           <div className="flex items-center justify-between mb-4">
             <div>
-              <h3 className="text-sm font-bold text-[#F0F4FF] flex items-center gap-2">
+              <h3 className="text-sm font-bold text-foreground flex items-center gap-2">
                 <Activity className="w-4 h-4 text-[#FF4D6D]" />
                 24-Hour Campus Incident Temporal Intensity Grid
               </h3>
-              <p className="text-[10px] text-[#8B9AB4]">
+              <p className="text-[10px] text-muted-foreground">
                 Hour of Day vs Day of Week heatmap (Red = High Frequency, Teal = Nominal Safe)
               </p>
             </div>
@@ -536,7 +536,7 @@ export default function AnalyticsDashboardPage() {
           <div className="overflow-x-auto">
             <div className="min-w-[500px] space-y-1.5">
               {/* Header hours */}
-              <div className="grid grid-cols-7 gap-1.5 text-center text-[10px] font-mono text-[#8B9AB4] pb-1">
+              <div className="grid grid-cols-7 gap-1.5 text-center text-[10px] font-mono text-muted-foreground pb-1">
                 <div>Day</div>
                 {TIME_BLOCKS.map((tb) => (
                   <div key={tb}>{tb}</div>
@@ -546,7 +546,7 @@ export default function AnalyticsDashboardPage() {
               {/* Day rows */}
               {DAYS.map((day, dIdx) => (
                 <div key={day} className="grid grid-cols-7 gap-1.5 items-center">
-                  <span className="text-xs font-mono font-bold text-[#8B9AB4]">{day}</span>
+                  <span className="text-xs font-mono font-bold text-muted-foreground">{day}</span>
                   {HOURLY_HEATMAP_DATA[dIdx].map((val, hIdx) => {
                     const color =
                       val > 10 ? '#FF4D6D' :
@@ -576,9 +576,9 @@ export default function AnalyticsDashboardPage() {
         </div>
 
         {/* Incident Type Composition Breakdown */}
-        <div className="lg:col-span-4 rounded-3xl glass border border-white/[0.08] bg-[#070B12]/85 p-5 backdrop-blur-md flex flex-col justify-between">
+        <div className="lg:col-span-4 rounded-3xl glass border border-border bg-card/85 dark:bg-[#070B12]/85 p-5 backdrop-blur-md flex flex-col justify-between">
           <div className="flex items-center justify-between mb-3">
-            <h3 className="text-sm font-bold text-[#F0F4FF]">Incident Type Composition</h3>
+            <h3 className="text-sm font-bold text-foreground">Incident Type Composition</h3>
             <span className="text-[10px] font-mono text-[#14F1D9]">100% COVERAGE</span>
           </div>
 
@@ -586,15 +586,15 @@ export default function AnalyticsDashboardPage() {
             {INCIDENT_TYPE_BREAKDOWN.map((item, i) => (
               <div key={i} className="space-y-1">
                 <div className="flex items-center justify-between text-xs">
-                  <span className="font-bold text-[#F0F4FF] flex items-center gap-1.5">
+                  <span className="font-bold text-foreground flex items-center gap-1.5">
                     <span className="w-2 h-2 rounded-full" style={{ backgroundColor: item.color }} />
                     {item.type}
                   </span>
-                  <span className="font-mono text-[10px] text-[#8B9AB4]">
+                  <span className="font-mono text-[10px] text-muted-foreground">
                     {item.count} ({item.percentage}%)
                   </span>
                 </div>
-                <div className="w-full h-1.5 rounded-full bg-white/[0.05] overflow-hidden">
+                <div className="w-full h-1.5 rounded-full bg-black/5 dark:bg-white/5 overflow-hidden">
                   <div
                     className="h-full rounded-full"
                     style={{ width: `${item.percentage}%`, backgroundColor: item.color }}

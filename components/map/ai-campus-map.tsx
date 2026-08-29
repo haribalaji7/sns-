@@ -748,12 +748,12 @@ export function AICampusMap({
                     y={b.labelY - 6}
                     textAnchor="middle"
                     fill="#F0F4FF"
-                    fontSize="12"
+                    fontSize="11"
                     fontWeight="bold"
                     fontFamily="sans-serif"
                     filter="drop-shadow(0 0 6px #070B12)"
                   >
-                    {b.name}
+                    {b.name.length > 16 ? `${b.name.slice(0, 14)}…` : b.name}
                   </text>
                   <text
                     x={b.labelX}

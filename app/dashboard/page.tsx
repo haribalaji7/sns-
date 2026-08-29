@@ -2,6 +2,7 @@
 
 import React, { useEffect } from 'react';
 import { motion } from 'framer-motion';
+import { useTheme } from 'next-themes';
 import {
   AlertTriangle,
   Shield,
@@ -103,6 +104,8 @@ const responseTimelineEvents = [
 
 export default function DashboardPage() {
   const { incidents, responders, metrics, aiAlerts, selectIncident, addToast } = useDashboardStore();
+  const { resolvedTheme } = useTheme();
+  const isDark = resolvedTheme !== 'light';
 
   // Supabase Realtime Listener Integration
   useEffect(() => {
@@ -154,15 +157,15 @@ export default function DashboardPage() {
         {/* ─── TOP ROW: 4 KPI STAT CARDS ───────────────────────────────── */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           {/* Card 1: Active Incidents */}
-          <div className="glass rounded-2xl p-4 border-[rgba(255,77,109,0.3)] bg-[#070B12]/80 hover:border-[#FF4D6D]/60 transition-all duration-300 relative overflow-hidden group">
+          <div className="glass rounded-2xl p-4 border-[rgba(255,77,109,0.3)] bg-card/80 dark:bg-[#070B12]/80 hover:border-[#FF4D6D]/60 transition-all duration-300 relative overflow-hidden group">
             <div className="absolute top-0 right-0 w-24 h-24 bg-[#FF4D6D]/15 rounded-full blur-xl pointer-events-none" />
             <div className="flex items-center justify-between mb-2">
-              <span className="text-[11px] font-mono text-[#8B9AB4] uppercase tracking-wider">Active Incidents</span>
+              <span className="text-[11px] font-mono text-muted-foreground uppercase tracking-wider">Active Incidents</span>
               <div className="p-2 rounded-xl bg-[#FF4D6D]/15 border border-[#FF4D6D]/30">
                 <AlertTriangle className="w-4 h-4 text-[#FF4D6D]" />
               </div>
             </div>
-            <div className="text-3xl font-extrabold text-[#F0F4FF] tracking-tight">
+            <div className="text-3xl font-extrabold text-foreground tracking-tight">
               {activeIncidents.length}
             </div>
             <div className="mt-2 flex items-center justify-between text-xs font-medium text-[#FF4D6D]">
@@ -170,20 +173,20 @@ export default function DashboardPage() {
                 <span className="w-2 h-2 rounded-full bg-[#FF4D6D] animate-ping" />
                 {criticalCount} Critical Active
               </span>
-              <span className="text-[10px] font-mono text-[#8B9AB4]">Zone B3 Priority</span>
+              <span className="text-[10px] font-mono text-muted-foreground">Zone B3 Priority</span>
             </div>
           </div>
 
           {/* Card 2: People At Risk */}
-          <div className="glass rounded-2xl p-4 border-[rgba(255,179,71,0.3)] bg-[#070B12]/80 hover:border-[#FFB347]/60 transition-all duration-300 relative overflow-hidden group">
+          <div className="glass rounded-2xl p-4 border-[rgba(255,179,71,0.3)] bg-card/80 dark:bg-[#070B12]/80 hover:border-[#FFB347]/60 transition-all duration-300 relative overflow-hidden group">
             <div className="absolute top-0 right-0 w-24 h-24 bg-[#FFB347]/15 rounded-full blur-xl pointer-events-none" />
             <div className="flex items-center justify-between mb-2">
-              <span className="text-[11px] font-mono text-[#8B9AB4] uppercase tracking-wider">People At Risk</span>
+              <span className="text-[11px] font-mono text-muted-foreground uppercase tracking-wider">People At Risk</span>
               <div className="p-2 rounded-xl bg-[#FFB347]/15 border border-[#FFB347]/30">
                 <Users className="w-4 h-4 text-[#FFB347]" />
               </div>
             </div>
-            <div className="text-3xl font-extrabold text-[#F0F4FF] tracking-tight">
+            <div className="text-3xl font-extrabold text-foreground tracking-tight">
               {totalPeopleAtRisk}
             </div>
             <div className="mt-2 flex items-center justify-between text-xs font-medium text-[#FFB347]">
@@ -193,33 +196,33 @@ export default function DashboardPage() {
           </div>
 
           {/* Card 3: Available Responders */}
-          <div className="glass rounded-2xl p-4 border-[rgba(20,241,217,0.3)] bg-[#070B12]/80 hover:border-[#14F1D9]/60 transition-all duration-300 relative overflow-hidden group">
+          <div className="glass rounded-2xl p-4 border-[rgba(20,241,217,0.3)] bg-card/80 dark:bg-[#070B12]/80 hover:border-[#14F1D9]/60 transition-all duration-300 relative overflow-hidden group">
             <div className="absolute top-0 right-0 w-24 h-24 bg-[#14F1D9]/15 rounded-full blur-xl pointer-events-none" />
             <div className="flex items-center justify-between mb-2">
-              <span className="text-[11px] font-mono text-[#8B9AB4] uppercase tracking-wider">Available Units</span>
+              <span className="text-[11px] font-mono text-muted-foreground uppercase tracking-wider">Available Units</span>
               <div className="p-2 rounded-xl bg-[#14F1D9]/15 border border-[#14F1D9]/30">
                 <Shield className="w-4 h-4 text-[#14F1D9]" />
               </div>
             </div>
-            <div className="text-3xl font-extrabold text-[#F0F4FF] tracking-tight">
-              {availableCount} <span className="text-sm font-normal text-[#8B9AB4]">/ {responders.length}</span>
+            <div className="text-3xl font-extrabold text-foreground tracking-tight">
+              {availableCount} <span className="text-sm font-normal text-muted-foreground">/ {responders.length}</span>
             </div>
             <div className="mt-2 flex items-center justify-between text-xs font-medium text-[#14F1D9]">
               <span>{responders.length - availableCount} Deployed On Scene</span>
-              <span className="text-[10px] font-mono text-[#8B9AB4]">CH-4 Radio</span>
+              <span className="text-[10px] font-mono text-muted-foreground">CH-4 Radio</span>
             </div>
           </div>
 
           {/* Card 4: Avg Response Time */}
-          <div className="glass rounded-2xl p-4 border-[rgba(34,211,165,0.3)] bg-[#070B12]/80 hover:border-[#22D3A5]/60 transition-all duration-300 relative overflow-hidden group">
+          <div className="glass rounded-2xl p-4 border-[rgba(34,211,165,0.3)] bg-card/80 dark:bg-[#070B12]/80 hover:border-[#22D3A5]/60 transition-all duration-300 relative overflow-hidden group">
             <div className="absolute top-0 right-0 w-24 h-24 bg-[#22D3A5]/15 rounded-full blur-xl pointer-events-none" />
             <div className="flex items-center justify-between mb-2">
-              <span className="text-[11px] font-mono text-[#8B9AB4] uppercase tracking-wider">Avg Response</span>
+              <span className="text-[11px] font-mono text-muted-foreground uppercase tracking-wider">Avg Response</span>
               <div className="p-2 rounded-xl bg-[#22D3A5]/15 border border-[#22D3A5]/30">
                 <Clock className="w-4 h-4 text-[#22D3A5]" />
               </div>
             </div>
-            <div className="text-3xl font-extrabold text-[#F0F4FF] tracking-tight">
+            <div className="text-3xl font-extrabold text-foreground tracking-tight">
               {formatDuration(metrics.avgResponseTime)}
             </div>
             <div className="mt-2 flex items-center justify-between text-xs font-medium text-[#22D3A5]">
@@ -234,11 +237,11 @@ export default function DashboardPage() {
           <div className="flex items-center justify-between mb-2 px-1">
             <div className="flex items-center gap-2">
               <span className="w-2.5 h-2.5 rounded-full bg-[#14F1D9] animate-pulse" />
-              <h2 className="text-sm font-mono font-bold text-[#F0F4FF] uppercase tracking-wider">
+              <h2 className="text-sm font-mono font-bold text-foreground uppercase tracking-wider">
                 Live Google Maps Tactical Command Center &amp; A* Safe Pathfinding
               </h2>
             </div>
-            <span className="text-xs font-mono text-[#8B9AB4]">
+            <span className="text-xs font-mono text-muted-foreground">
               224 SENSORS · GOOGLE MAPS OVERWATCH
             </span>
           </div>
@@ -252,11 +255,11 @@ export default function DashboardPage() {
           <div className="glass rounded-2xl p-4 border border-white/10 flex flex-col justify-between">
             <div>
               <div className="flex items-center justify-between mb-3">
-                <h3 className="text-xs font-mono font-bold text-[#F0F4FF] uppercase flex items-center gap-1.5">
+                <h3 className="text-xs font-mono font-bold text-foreground uppercase flex items-center gap-1.5">
                   <Clock className="w-3.5 h-3.5 text-[#14F1D9]" />
                   Response Timeline
                 </h3>
-                <span className="text-[10px] font-mono text-[#8B9AB4]">REALTIME LOG</span>
+                <span className="text-[10px] font-mono text-muted-foreground">REALTIME LOG</span>
               </div>
 
               <div className="space-y-3">
@@ -268,17 +271,17 @@ export default function DashboardPage() {
                     />
                     <div className="min-w-0 flex-1">
                       <div className="flex items-center justify-between">
-                        <p className="text-xs font-bold text-[#F0F4FF] truncate">{evt.title}</p>
-                        <span className="text-[9px] font-mono text-[#8B9AB4]">{evt.time}</span>
+                        <p className="text-xs font-bold text-foreground truncate">{evt.title}</p>
+                        <span className="text-[9px] font-mono text-muted-foreground">{evt.time}</span>
                       </div>
-                      <p className="text-[11px] text-[#8B9AB4] mt-0.5 line-clamp-1">{evt.detail}</p>
+                      <p className="text-[11px] text-muted-foreground mt-0.5 line-clamp-1">{evt.detail}</p>
                     </div>
                   </div>
                 ))}
               </div>
             </div>
 
-            <div className="mt-3 pt-2 border-t border-white/5 flex items-center justify-between text-[10px] font-mono text-[#8B9AB4]">
+            <div className="mt-3 pt-2 border-t border-border flex items-center justify-between text-[10px] font-mono text-muted-foreground">
               <span>Event Stream Active</span>
               <span className="text-[#14F1D9]">Latency 8ms</span>
             </div>
@@ -288,7 +291,7 @@ export default function DashboardPage() {
           <div className="glass rounded-2xl p-4 border border-white/10 flex flex-col justify-between">
             <div>
               <div className="flex items-center justify-between mb-3">
-                <h3 className="text-xs font-mono font-bold text-[#F0F4FF] uppercase flex items-center gap-1.5">
+                <h3 className="text-xs font-mono font-bold text-foreground uppercase flex items-center gap-1.5">
                   <Activity className="w-3.5 h-3.5 text-[#FF4D6D]" />
                   Campus Risk Trend
                 </h3>
@@ -304,14 +307,16 @@ export default function DashboardPage() {
                         <stop offset="95%" stopColor="#FF4D6D" stopOpacity={0.0} />
                       </linearGradient>
                     </defs>
-                    <CartesianGrid stroke="rgba(255,255,255,0.05)" strokeDasharray="3 3" />
-                    <XAxis dataKey="time" stroke="#4A5568" fontSize={10} tickLine={false} />
-                    <YAxis stroke="#4A5568" fontSize={10} domain={[0, 100]} tickLine={false} />
+                    <CartesianGrid stroke={isDark ? "rgba(255,255,255,0.06)" : "rgba(15,23,42,0.08)"} strokeDasharray="3 3" />
+                    <XAxis dataKey="time" stroke={isDark ? "#8B9AB4" : "#64748B"} fontSize={10} tickLine={false} />
+                    <YAxis stroke={isDark ? "#8B9AB4" : "#64748B"} fontSize={10} domain={[0, 100]} tickLine={false} />
                     <Tooltip
                       contentStyle={{
-                        backgroundColor: '#070B12',
-                        borderColor: 'rgba(20,241,217,0.3)',
+                        backgroundColor: isDark ? '#101826' : '#FFFFFF',
+                        borderColor: isDark ? 'rgba(20,241,217,0.3)' : 'rgba(15,23,42,0.12)',
+                        color: isDark ? '#F5F7FA' : '#0F172A',
                         borderRadius: '12px',
+                        boxShadow: '0 8px 24px rgba(0,0,0,0.15)',
                         fontSize: '11px',
                       }}
                     />
@@ -327,21 +332,21 @@ export default function DashboardPage() {
               </div>
             </div>
 
-            <div className="mt-2 flex items-center justify-between text-[10px] font-mono text-[#8B9AB4]">
+            <div className="mt-2 flex items-center justify-between text-[10px] font-mono text-muted-foreground">
               <span>Current Threat Level: High</span>
-              <span className="text-[#FF4D6D] font-bold">Science B Spike</span>
+              <span className="text-danger font-bold">Science B Spike</span>
             </div>
           </div>
 
           {/* Panel 3: Incident Distribution Donut Chart */}
-          <div className="glass rounded-2xl p-4 border border-white/10 flex flex-col justify-between">
+          <div className="glass rounded-2xl p-4 border border-border flex flex-col justify-between">
             <div>
               <div className="flex items-center justify-between mb-2">
-                <h3 className="text-xs font-mono font-bold text-[#F0F4FF] uppercase flex items-center gap-1.5">
-                  <PieChart className="w-3.5 h-3.5 text-[#7C5CFF]" />
+                <h3 className="text-xs font-mono font-bold text-foreground uppercase flex items-center gap-1.5">
+                  <PieChart className="w-3.5 h-3.5 text-secondary" />
                   Incident Distribution
                 </h3>
-                <span className="text-[10px] font-mono text-[#8B9AB4]">TYPE RATIO</span>
+                <span className="text-[10px] font-mono text-muted-foreground">TYPE RATIO</span>
               </div>
 
               <div className="h-40 w-full flex items-center justify-center">
@@ -362,9 +367,11 @@ export default function DashboardPage() {
                     </Pie>
                     <Tooltip
                       contentStyle={{
-                        backgroundColor: '#070B12',
-                        borderColor: 'rgba(20,241,217,0.3)',
+                        backgroundColor: isDark ? '#101826' : '#FFFFFF',
+                        borderColor: isDark ? 'rgba(20,241,217,0.3)' : 'rgba(15,23,42,0.12)',
+                        color: isDark ? '#F5F7FA' : '#0F172A',
                         borderRadius: '12px',
+                        boxShadow: '0 8px 24px rgba(0,0,0,0.15)',
                         fontSize: '11px',
                       }}
                     />
@@ -373,7 +380,7 @@ export default function DashboardPage() {
               </div>
             </div>
 
-            <div className="grid grid-cols-2 gap-x-2 gap-y-1 text-[10px] font-mono text-[#8B9AB4]">
+            <div className="grid grid-cols-2 gap-x-2 gap-y-1 text-[10px] font-mono text-muted-foreground">
               {incidentDistributionData.slice(0, 4).map((d) => (
                 <div key={d.name} className="flex items-center gap-1.5">
                   <span className="w-2 h-2 rounded-full flex-shrink-0" style={{ backgroundColor: d.color }} />

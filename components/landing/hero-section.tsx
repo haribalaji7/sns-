@@ -53,10 +53,10 @@ export function HeroSection() {
             <span className="block bg-gradient-to-r from-[#14F1D9] via-[#7C5CFF] to-[#14F1D9] bg-clip-text text-fill-transparent drop-shadow-[0_0_35px_rgba(20,241,217,0.4)] animate-gradient">
               SMART CAMPUS
             </span>
-            <span className="block text-[#F0F4FF] text-3xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight mt-2 sm:mt-3">
+            <span className="block text-foreground text-3xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight mt-2 sm:mt-3">
               Emergency Response &amp;
             </span>
-            <span className="block bg-gradient-to-r from-[#14F1D9] via-[#38BDF8] to-[#7C5CFF] bg-clip-text text-fill-transparent text-3xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight drop-shadow-[0_0_25px_rgba(124,92,255,0.4)]">
+            <span className="block bg-gradient-to-r from-primary via-cyan-400 to-secondary bg-clip-text text-fill-transparent text-3xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight drop-shadow-[0_0_25px_rgba(124,92,255,0.4)]">
               Safety Management
             </span>
           </h1>
@@ -67,10 +67,10 @@ export function HeroSection() {
           initial={{ opacity: 0, y: 15 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.25, ease: 'easeOut' }}
-          className="max-w-3xl text-sm sm:text-base lg:text-lg text-[#8B9AB4] leading-relaxed mb-8 font-normal"
+          className="max-w-3xl text-sm sm:text-base lg:text-lg text-muted-foreground leading-relaxed mb-8 font-normal"
         >
-          Autonomous campus defense platform unifying <span className="text-[#14F1D9] font-medium">multimodal computer vision</span>,
-          220+ distributed IoT sensor telemetry, sub-second threat scoring, and <span className="text-[#7C5CFF] font-medium">real-time responder dispatch</span> with dynamic evacuation routing.
+          Autonomous campus defense platform unifying <span className="text-primary font-medium">multimodal computer vision</span>,
+          220+ distributed IoT sensor telemetry, sub-second threat scoring, and <span className="text-secondary font-medium">real-time responder dispatch</span> with dynamic evacuation routing.
         </motion.p>
 
         {/* CTA Buttons */}
@@ -78,17 +78,41 @@ export function HeroSection() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.35, ease: 'easeOut' }}
-          className="flex flex-col sm:flex-row items-center gap-4 mb-14 w-full sm:w-auto"
+          className="flex flex-col sm:flex-row items-center justify-center flex-wrap gap-4 mb-14 w-full"
         >
-          <Link href="/dashboard" className="w-full sm:w-auto">
+          <Link href="/admin/login" className="w-full sm:w-auto">
+            <GradientButton
+              variant="primary"
+              size="lg"
+              icon={<Shield className="w-4 h-4" />}
+              iconPosition="left"
+              className="w-full sm:w-auto text-sm sm:text-base font-bold tracking-wide px-6 py-4 shadow-[0_0_30px_rgba(20,241,217,0.3)] hover:shadow-[0_0_50px_rgba(20,241,217,0.6)] group"
+            >
+              Admin Command Center
+            </GradientButton>
+          </Link>
+
+          <Link href="/student/login" className="w-full sm:w-auto">
             <GradientButton
               variant="primary"
               size="lg"
               icon={<ArrowRight className="w-4 h-4" />}
               iconPosition="right"
-              className="w-full sm:w-auto text-sm sm:text-base font-bold tracking-wide px-8 py-4 shadow-[0_0_30px_rgba(20,241,217,0.45)] hover:shadow-[0_0_50px_rgba(20,241,217,0.7)] group"
+              className="w-full sm:w-auto text-sm sm:text-base font-bold tracking-wide px-6 py-4 bg-gradient-to-r from-[#7C5CFF] to-[#9D84FF] shadow-[0_0_30px_rgba(124,92,255,0.3)] hover:shadow-[0_0_50px_rgba(124,92,255,0.6)] group border-none"
             >
-              Launch Command Center
+              Student Portal
+            </GradientButton>
+          </Link>
+
+          <Link href="/security/login" className="w-full sm:w-auto">
+            <GradientButton
+              variant="primary"
+              size="lg"
+              icon={<Radio className="w-4 h-4" />}
+              iconPosition="left"
+              className="w-full sm:w-auto text-sm sm:text-base font-bold tracking-wide px-6 py-4 bg-gradient-to-r from-[#FFB347] to-[#FF8C00] shadow-[0_0_30px_rgba(255,179,71,0.3)] hover:shadow-[0_0_50px_rgba(255,179,71,0.6)] group border-none"
+            >
+              Security Portal
             </GradientButton>
           </Link>
 
@@ -100,66 +124,66 @@ export function HeroSection() {
               iconPosition="left"
               className="w-full sm:w-auto text-sm font-semibold px-6 py-4 border-[rgba(20,241,217,0.3)] hover:border-[rgba(20,241,217,0.7)] hover:bg-[rgba(20,241,217,0.06)]"
             >
-              Enter 3D Digital Twin
+              3D Digital Twin
             </GradientButton>
           </Link>
         </motion.div>
 
         {/* Live System Metrics Quick Strip */}
         <motion.div
-          initial={{ opacity: 0, y: 25 }}
+          initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.7, delay: 0.45, ease: 'easeOut' }}
-          className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4 w-full max-w-4xl"
+          className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4 w-full"
         >
-          <div className="glass rounded-2xl p-3.5 sm:p-4 text-left border-[rgba(20,241,217,0.2)] bg-[#070B12]/60 hover:border-[rgba(20,241,217,0.5)] transition-all duration-300 group">
+          <div className="glass rounded-2xl p-3.5 sm:p-4 text-left border-primary/20 bg-card/70 dark:bg-[#070B12]/60 hover:border-primary/50 transition-all duration-300 group">
             <div className="flex items-center justify-between mb-1.5">
-              <span className="text-[11px] font-mono text-[#8B9AB4] uppercase tracking-wider">Response ETA</span>
-              <Clock className="w-3.5 h-3.5 text-[#14F1D9] group-hover:scale-110 transition-transform" />
+              <span className="text-[11px] font-mono text-muted-foreground uppercase tracking-wider">Response ETA</span>
+              <Clock className="w-3.5 h-3.5 text-primary group-hover:scale-110 transition-transform" />
             </div>
-            <div className="text-xl sm:text-2xl font-bold text-[#F0F4FF] tracking-tight">
+            <div className="text-xl sm:text-2xl font-bold text-foreground tracking-tight">
               &lt; 90s
             </div>
-            <span className="text-[11px] text-[#22D3A5] font-medium flex items-center gap-1 mt-0.5">
+            <span className="text-[11px] text-success font-medium flex items-center gap-1 mt-0.5">
               <CheckCircle2 className="w-3 h-3" /> 68% faster dispatch
             </span>
           </div>
 
-          <div className="glass rounded-2xl p-3.5 sm:p-4 text-left border-[rgba(124,92,255,0.2)] bg-[#070B12]/60 hover:border-[rgba(124,92,255,0.5)] transition-all duration-300 group">
+          <div className="glass rounded-2xl p-3.5 sm:p-4 text-left border-secondary/20 bg-card/70 dark:bg-[#070B12]/60 hover:border-secondary/50 transition-all duration-300 group">
             <div className="flex items-center justify-between mb-1.5">
-              <span className="text-[11px] font-mono text-[#8B9AB4] uppercase tracking-wider">AI Accuracy</span>
-              <Cpu className="w-3.5 h-3.5 text-[#7C5CFF] group-hover:scale-110 transition-transform" />
+              <span className="text-[11px] font-mono text-muted-foreground uppercase tracking-wider">AI Accuracy</span>
+              <Cpu className="w-3.5 h-3.5 text-secondary group-hover:scale-110 transition-transform" />
             </div>
-            <div className="text-xl sm:text-2xl font-bold text-[#F0F4FF] tracking-tight">
+            <div className="text-xl sm:text-2xl font-bold text-foreground tracking-tight">
               99.4%
             </div>
-            <span className="text-[11px] text-[#14F1D9] font-medium flex items-center gap-1 mt-0.5">
+            <span className="text-[11px] text-primary font-medium flex items-center gap-1 mt-0.5">
               <Zap className="w-3 h-3" /> Zero false negatives
             </span>
           </div>
 
-          <div className="glass rounded-2xl p-3.5 sm:p-4 text-left border-[rgba(20,241,217,0.2)] bg-[#070B12]/60 hover:border-[rgba(20,241,217,0.5)] transition-all duration-300 group">
+          <div className="glass rounded-2xl p-3.5 sm:p-4 text-left border-primary/20 bg-card/70 dark:bg-[#070B12]/60 hover:border-primary/50 transition-all duration-300 group">
             <div className="flex items-center justify-between mb-1.5">
-              <span className="text-[11px] font-mono text-[#8B9AB4] uppercase tracking-wider">IoT Sensor Grid</span>
-              <Activity className="w-3.5 h-3.5 text-[#14F1D9] group-hover:scale-110 transition-transform" />
+              <span className="text-[11px] font-mono text-muted-foreground uppercase tracking-wider">IoT Sensor Grid</span>
+              <Activity className="w-3.5 h-3.5 text-primary group-hover:scale-110 transition-transform" />
             </div>
-            <div className="text-xl sm:text-2xl font-bold text-[#F0F4FF] tracking-tight">
+            <div className="text-xl sm:text-2xl font-bold text-foreground tracking-tight">
               224 Nodes
             </div>
-            <span className="text-[11px] text-[#22D3A5] font-medium flex items-center gap-1 mt-0.5">
-              <span className="w-1.5 h-1.5 rounded-full bg-[#22D3A5] animate-pulse" /> 100% Online
+            <span className="text-[11px] text-success font-medium flex items-center gap-1 mt-0.5">
+              <span className="w-1.5 h-1.5 rounded-full bg-success animate-pulse" /> 100% Online
             </span>
           </div>
 
-          <div className="glass rounded-2xl p-3.5 sm:p-4 text-left border-[rgba(255,77,109,0.2)] bg-[#070B12]/60 hover:border-[rgba(255,77,109,0.5)] transition-all duration-300 group">
+          <div className="glass rounded-2xl p-3.5 sm:p-4 text-left border-danger/20 bg-card/70 dark:bg-[#070B12]/60 hover:border-danger/50 transition-all duration-300 group">
             <div className="flex items-center justify-between mb-1.5">
-              <span className="text-[11px] font-mono text-[#8B9AB4] uppercase tracking-wider">Lives Protected</span>
-              <Shield className="w-3.5 h-3.5 text-[#FF4D6D] group-hover:scale-110 transition-transform" />
+              <span className="text-[11px] font-mono text-muted-foreground uppercase tracking-wider">Lives Protected</span>
+              <Shield className="w-3.5 h-3.5 text-danger group-hover:scale-110 transition-transform" />
             </div>
-            <div className="text-xl sm:text-2xl font-bold text-[#F0F4FF] tracking-tight">
+            <div className="text-xl sm:text-2xl font-bold text-foreground tracking-tight">
               4,800+
             </div>
-            <span className="text-[11px] text-[#8B9AB4] font-medium flex items-center gap-1 mt-0.5">
+            <span className="text-[11px] text-muted-foreground font-medium flex items-center gap-1 mt-0.5">
               Across 8 Campus Zones
             </span>
           </div>
@@ -173,21 +197,21 @@ export function HeroSection() {
         transition={{ duration: 0.8, delay: 0.6, ease: 'easeOut' }}
         className="relative z-10 max-w-4xl w-full mt-12"
       >
-        <div className="relative rounded-2xl p-1 bg-gradient-to-r from-[#14F1D9]/40 via-[#7C5CFF]/30 to-[#14F1D9]/40 shadow-[0_0_50px_rgba(20,241,217,0.2)]">
-          <div className="rounded-2xl bg-[#070B12]/90 backdrop-blur-2xl p-4 sm:p-6 border border-white/10">
+        <div className="relative rounded-2xl p-1 bg-gradient-to-r from-primary/40 via-secondary/30 to-primary/40 shadow-[0_0_50px_rgba(20,241,217,0.2)]">
+          <div className="rounded-2xl bg-card/90 dark:bg-[#070B12]/90 backdrop-blur-2xl p-4 sm:p-6 border border-border">
             {/* Window Top Bar */}
-            <div className="flex items-center justify-between pb-4 mb-4 border-b border-white/10">
+            <div className="flex items-center justify-between pb-4 mb-4 border-b border-border">
               <div className="flex items-center gap-2">
-                <span className="w-3 h-3 rounded-full bg-[#FF4D6D]" />
-                <span className="w-3 h-3 rounded-full bg-[#FFB347]" />
-                <span className="w-3 h-3 rounded-full bg-[#22D3A5]" />
-                <span className="ml-2 text-xs font-mono text-[#8B9AB4]">campusshield-defense-grid.live</span>
+                <span className="w-3 h-3 rounded-full bg-danger" />
+                <span className="w-3 h-3 rounded-full bg-warning" />
+                <span className="w-3 h-3 rounded-full bg-success" />
+                <span className="ml-2 text-xs font-mono text-muted-foreground">campusshield-defense-grid.live</span>
               </div>
               <div className="flex items-center gap-3">
-                <span className="flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-[rgba(255,77,109,0.15)] text-[#FF4D6D] text-[11px] font-mono font-semibold border border-[rgba(255,77,109,0.3)]">
+                <span className="flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-danger/15 text-danger text-[11px] font-mono font-semibold border border-danger/30">
                   <Flame className="w-3 h-3 animate-pulse" /> LIVE INCIDENT INC-0091
                 </span>
-                <span className="hidden sm:inline-block text-xs font-mono text-[#14F1D9]">
+                <span className="hidden sm:inline-block text-xs font-mono text-primary">
                   LATENCY 8MS
                 </span>
               </div>

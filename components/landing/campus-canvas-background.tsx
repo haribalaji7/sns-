@@ -228,9 +228,9 @@ export function CampusCanvasBackground() {
     <div className="absolute inset-0 pointer-events-none overflow-hidden z-0">
       <canvas ref={canvasRef} className="absolute inset-0 w-full h-full opacity-70" />
       {/* Cinematic Vignette & Gradient Overlays */}
-      <div className="absolute inset-0 bg-radial from-transparent via-[#070B12]/60 to-[#070B12]" />
-      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[1000px] h-[500px] bg-gradient-to-b from-[#14F1D9]/10 via-[#7C5CFF]/5 to-transparent blur-3xl pointer-events-none" />
-      <div className="absolute bottom-0 right-0 w-[600px] h-[600px] bg-gradient-to-t from-[#7C5CFF]/10 to-transparent blur-3xl pointer-events-none" />
+      <div className="absolute inset-0 bg-radial from-transparent via-background/60 to-background" />
+      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[1000px] h-[500px] bg-gradient-to-b from-primary/10 via-secondary/5 to-transparent blur-3xl pointer-events-none" />
+      <div className="absolute bottom-0 right-0 w-[600px] h-[600px] bg-gradient-to-t from-secondary/10 to-transparent blur-3xl pointer-events-none" />
     </div>
   );
 }

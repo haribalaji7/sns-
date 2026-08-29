@@ -20,9 +20,11 @@ import {
   Smartphone,
   Cpu,
   Layers,
+  LogOut,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useDashboardStore } from '@/store/dashboard';
+import { logoutAdmin } from '@/app/admin/login/actions';
 
 const navItems = [
   { href: '/dashboard',            icon: LayoutDashboard, label: 'Command Center', shortLabel: 'Command' },
@@ -46,12 +48,12 @@ export function DashboardSidebar() {
       initial={false}
       animate={{ width: sidebarCollapsed ? 72 : 220 }}
       transition={{ duration: 0.25, ease: 'easeOut' }}
-      className="flex-shrink-0 h-full glass border-r border-[rgba(20,241,217,0.15)] bg-[#070B12]/95 flex flex-col justify-between overflow-hidden z-30 select-none"
+      className="flex-shrink-0 h-full border-r border-[rgba(20,241,217,0.18)] bg-[#070B12] bg-gradient-to-b from-[#0A101D] to-[#070B12] text-[#F5F7FA] flex flex-col justify-between overflow-hidden z-30 select-none shadow-2xl backdrop-blur-xl"
     >
       {/* ─── Top: Logo ─────────────────────────────────────────────────── */}
       <div>
         <Link href="/" className="flex items-center gap-3 px-4 py-5 border-b border-white/[0.08] cursor-pointer group">
-          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#14F1D9]/20 to-[#7C5CFF]/20 border border-[rgba(20,241,217,0.4)] flex items-center justify-center flex-shrink-0 shadow-[0_0_15px_rgba(20,241,217,0.3)] group-hover:scale-105 transition-all">
+          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#14F1D9]/20 to-[#7C5CFF]/20 border border-[#14F1D9]/40 flex items-center justify-center flex-shrink-0 shadow-[0_0_15px_rgba(20,241,217,0.3)] group-hover:scale-105 transition-all">
             <Shield className="w-5 h-5 text-[#14F1D9]" />
           </div>
           <AnimatePresence>
@@ -84,8 +86,8 @@ export function DashboardSidebar() {
                   className={cn(
                     'flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-200 cursor-pointer group relative',
                     isActive
-                      ? 'bg-[rgba(20,241,217,0.12)] text-[#14F1D9] border border-[rgba(20,241,217,0.3)] shadow-[0_0_15px_rgba(20,241,217,0.15)]'
-                      : 'text-[#8B9AB4] hover:text-[#F0F4FF] hover:bg-white/[0.05]',
+                      ? 'bg-[#14F1D9]/15 text-[#14F1D9] border border-[#14F1D9]/40 shadow-[0_0_15px_rgba(20,241,217,0.15)] font-bold'
+                      : 'text-[#94A3B8] hover:text-[#F0F4FF] hover:bg-white/[0.06] border border-transparent',
                   )}
                 >
                   {isActive && (
@@ -99,7 +101,7 @@ export function DashboardSidebar() {
                   <Icon
                     className={cn(
                       'w-5 h-5 flex-shrink-0 transition-transform group-hover:scale-110',
-                      isActive ? 'text-[#14F1D9] drop-shadow-[0_0_6px_rgba(20,241,217,0.8)]' : 'text-[#8B9AB4]',
+                      isActive ? 'text-[#14F1D9]' : 'text-[#8B9AB4] group-hover:text-[#14F1D9]',
                     )}
                   />
 
@@ -118,7 +120,7 @@ export function DashboardSidebar() {
 
                   {/* Tooltip when collapsed (72px Mode) */}
                   {sidebarCollapsed && (
-                    <div className="absolute left-16 bg-[#0D1219] border border-[rgba(20,241,217,0.3)] rounded-lg px-3 py-1.5 text-xs font-semibold text-[#F0F4FF] whitespace-nowrap opacity-0 pointer-events-none group-hover:opacity-100 transition-opacity duration-200 z-50 shadow-2xl">
+                    <div className="absolute left-16 bg-[#0E1726] border border-[rgba(20,241,217,0.3)] rounded-lg px-3 py-1.5 text-xs font-semibold text-[#F0F4FF] whitespace-nowrap opacity-0 pointer-events-none group-hover:opacity-100 transition-opacity duration-200 z-50 shadow-2xl">
                       {item.label}
                     </div>
                   )}
@@ -133,28 +135,46 @@ export function DashboardSidebar() {
       <div className="p-2 border-t border-white/[0.08] space-y-1">
         {/* Active Emergency Alert Badge */}
         {!sidebarCollapsed && metrics.activeIncidents > 0 && (
-          <div className="mx-1 mb-2 px-3 py-2 rounded-xl bg-[rgba(255,77,109,0.12)] border border-[rgba(255,77,109,0.3)] flex items-center justify-between">
+          <div className="mx-1 mb-2 px-3 py-2 rounded-xl bg-[#FF4D6D]/15 border border-[#FF4D6D]/35 flex items-center justify-between">
             <div className="flex items-center gap-2">
               <span className="w-2 h-2 rounded-full bg-[#FF4D6D] animate-ping" />
               <span className="text-[11px] font-mono text-[#FF4D6D] font-bold">
                 {metrics.activeIncidents} Active
               </span>
             </div>
-            <span className="text-[9px] font-mono text-[#8B9AB4]">LIVE</span>
+            <span className="text-[9px] font-mono text-[#94A3B8]">LIVE</span>
           </div>
         )}
+
+        {/* Logout Button */}
+        <button
+          onClick={async () => {
+            await logoutAdmin();
+          }}
+          className="w-full flex items-center justify-center gap-2 px-3 py-2 rounded-xl text-[#94A3B8] hover:text-[#FF4D6D] hover:bg-[#FF4D6D]/15 transition-colors cursor-pointer"
+          title="Log Out / Sign Out"
+        >
+          {sidebarCollapsed ? (
+            <LogOut className="w-4 h-4 text-[#FF4D6D]" />
+          ) : (
+            <>
+              <LogOut className="w-4 h-4 text-[#FF4D6D]" />
+              <span className="text-xs font-mono font-medium text-[#F0F4FF]">Log Out</span>
+            </>
+          )}
+        </button>
 
         {/* Collapse / Expand Toggle Button */}
         <button
           onClick={toggleSidebar}
-          className="w-full flex items-center justify-center gap-2 px-3 py-2 rounded-xl text-[#8B9AB4] hover:text-[#14F1D9] hover:bg-white/[0.04] transition-colors cursor-pointer"
+          className="w-full flex items-center justify-center gap-2 px-3 py-2 rounded-xl text-[#94A3B8] hover:text-[#14F1D9] hover:bg-white/[0.06] transition-colors cursor-pointer"
         >
           {sidebarCollapsed ? (
             <ChevronRight className="w-4 h-4" />
           ) : (
             <>
               <ChevronLeft className="w-4 h-4" />
-              <span className="text-xs font-mono font-medium">Collapse (72px)</span>
+              <span className="text-xs font-mono font-medium text-[#F0F4FF]">Collapse (72px)</span>
             </>
           )}
         </button>

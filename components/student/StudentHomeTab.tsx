@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import {
   Shield,
@@ -17,25 +17,51 @@ import {
   CheckCircle2,
   Bell,
   Sparkles,
+  QrCode,
+  Sliders,
+  UserCheck,
+  Zap,
 } from 'lucide-react';
+import { useStudentStore } from '@/store/student';
+import { useDashboardStore } from '@/store/dashboard';
 import { soundEffects } from '@/lib/audio-effects';
+import { ThemeToggle } from '@/components/theme/ThemeToggle';
 
 interface StudentHomeTabProps {
   onTriggerSOS: () => void;
   onNavigateToMap: () => void;
   onNavigateToAlerts: () => void;
+  onOpenCheckIn?: () => void;
+  onOpenAuth?: () => void;
 }
 
 export function StudentHomeTab({
   onTriggerSOS,
   onNavigateToMap,
   onNavigateToAlerts,
+  onOpenCheckIn = () => {},
+  onOpenAuth = () => {},
 }: StudentHomeTabProps) {
-  const nearbyResponders = [
-    { name: 'Off. Marcus Webb', role: 'Campus Patrol', distance: '140m away', eta: '45s', status: 'available', color: '#14F1D9' },
-    { name: 'Dr. Sarah Mills', role: 'ALS Paramedic', distance: '280m away', eta: '1m 30s', status: 'on_scene', color: '#FFB347' },
-    { name: 'Sgt. Priya Sharma', role: 'Security Lead', distance: '420m away', eta: '2m 10s', status: 'available', color: '#7C5CFF' },
-  ];
+  const { profile, campusStatus, myDistanceToSafeZone, markSafe } = useStudentStore();
+  const { metrics, incidents, responders } = useDashboardStore();
+  const [sliderPosition, setSliderPosition] = useState(0);
+
+  // Dynamic greeting based on time of day
+  const getGreeting = () => {
+    const hour = new Date().getHours();
+    if (hour < 12) return 'Good Morning';
+    if (hour < 17) return 'Good Afternoon';
+    return 'Good Evening';
+  };
+
+  const nearbyRespondersList = responders.slice(0, 3).map((r, i) => ({
+    name: r.name,
+    role: r.role,
+    distance: `${120 + i * 110}m away`,
+    eta: `${40 + i * 35}s`,
+    status: r.status,
+    color: i === 0 ? '#14F1D9' : i === 1 ? '#FFB347' : '#7C5CFF',
+  }));
 
   const quickContacts = [
     { label: 'Campus Police', sub: '24/7 Rapid Patrol', number: 'tel:+18005557233', color: '#14F1D9' },
@@ -44,39 +70,91 @@ export function StudentHomeTab({
     { label: 'Direct 911', sub: 'City Emergency Services', number: 'tel:911', color: '#7C5CFF' },
   ];
 
+  const handleSlideConfirm = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const val = Number(e.target.value);
+    setSliderPosition(val);
+    if (val >= 90) {
+      soundEffects.playAlert();
+      onTriggerSOS();
+      setTimeout(() => setSliderPosition(0), 1000);
+    }
+  };
+
   return (
-    <div className="flex flex-col gap-5 p-4 pb-20 overflow-y-auto">
-      {/* ─── Safety Status Banner ────────────────────────────────────────── */}
-      <div className="rounded-3xl glass border border-[rgba(20,241,217,0.3)] bg-gradient-to-r from-[rgba(20,241,217,0.12)] via-[#070B12] to-transparent p-4 flex items-center justify-between shadow-xl">
-        <div className="flex items-center gap-3">
-          <div className="w-11 h-11 rounded-2xl bg-[#22D3A5]/20 border border-[#22D3A5]/40 flex items-center justify-center text-[#22D3A5] shadow-[0_0_15px_rgba(34,211,165,0.3)]">
-            <Shield className="w-6 h-6" />
-          </div>
-          <div>
-            <div className="flex items-center gap-1.5">
-              <span className="w-2 h-2 rounded-full bg-[#22D3A5] animate-ping" />
-              <h3 className="text-xs font-mono font-bold text-[#22D3A5] uppercase">
-                Zone: Central Quad · SAFE
-              </h3>
+    <div className="flex flex-col gap-4 p-4 pb-20 overflow-y-auto">
+      {/* ─── Top Student Header & Greeting Card ─────────────────────────── */}
+      <div className="rounded-3xl glass border border-[rgba(20,241,217,0.3)] bg-gradient-to-br from-[rgba(20,241,217,0.12)] via-[#070B12] to-[rgba(124,92,255,0.08)] p-4 shadow-xl relative overflow-hidden">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div
+              onClick={onOpenAuth}
+              className="w-12 h-12 rounded-2xl bg-gradient-to-br from-[#14F1D9]/20 to-[#7C5CFF]/20 border border-[#14F1D9]/50 flex items-center justify-center text-sm font-black text-[#14F1D9] shadow-md cursor-pointer hover:brightness-125 transition-all flex-shrink-0"
+              title="Click to Switch Profile"
+            >
+              {profile.name.split(' ')[0][0]}
+              {profile.name.split(' ')[1]?.[0] || 'S'}
             </div>
-            <p className="text-xs font-bold text-[#F0F4FF] mt-0.5">
-              Campus Shield Active (98% Coverage)
-            </p>
+            <div>
+              <div className="flex items-center gap-1.5">
+                <h2 className="text-sm font-black text-[#F0F4FF]">
+                  {getGreeting()}, {profile.name.split(' ')[0]}
+                </h2>
+                <span className="w-2 h-2 rounded-full bg-[#22D3A5] animate-ping" />
+              </div>
+              <p className="text-[11px] text-[#8B9AB4] font-medium truncate max-w-[190px]">
+                {profile.department.split('(')[0]}
+              </p>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-2">
+            <ThemeToggle />
+            <div className="text-right">
+              <div className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-[#22D3A5]/15 border border-[#22D3A5]/40 text-[#22D3A5] font-mono text-[10px] font-bold">
+                <Shield className="w-3 h-3" />
+                <span>{campusStatus}</span>
+              </div>
+              <span className="text-[9px] font-mono text-[#8B9AB4] block mt-0.5">
+                Shield 98%
+              </span>
+            </div>
           </div>
         </div>
-
-        <button
-          onClick={onNavigateToMap}
-          className="px-3 py-1.5 rounded-xl bg-white/5 hover:bg-white/10 text-[11px] font-mono font-semibold text-[#14F1D9] border border-white/10 flex items-center gap-1 cursor-pointer transition-all"
-        >
-          <span>Map</span>
-          <ChevronRight className="w-3.5 h-3.5" />
-        </button>
       </div>
 
-      {/* ─── Large Animated SOS Emergency Button ───────────────────────── */}
-      <div className="flex flex-col items-center justify-center my-2 select-none">
-        <div className="relative flex items-center justify-center w-64 h-64">
+      {/* ─── 3 Quick Statistics KPIs ────────────────────────────────────── */}
+      <div className="grid grid-cols-3 gap-2">
+        <div className="p-3 rounded-2xl bg-white/[0.02] border border-white/[0.06] flex flex-col items-center justify-center text-center">
+          <span className="text-[9px] font-mono text-[#8B9AB4] uppercase block">
+            Active Threats
+          </span>
+          <span className="text-lg font-black font-mono text-[#FF4D6D] mt-0.5">
+            {metrics.activeIncidents}
+          </span>
+        </div>
+
+        <div className="p-3 rounded-2xl bg-white/[0.02] border border-white/[0.06] flex flex-col items-center justify-center text-center">
+          <span className="text-[9px] font-mono text-[#8B9AB4] uppercase block">
+            Nearby Patrol
+          </span>
+          <span className="text-lg font-black font-mono text-[#14F1D9] mt-0.5">
+            {metrics.respondersAvailable}
+          </span>
+        </div>
+
+        <div className="p-3 rounded-2xl bg-white/[0.02] border border-white/[0.06] flex flex-col items-center justify-center text-center">
+          <span className="text-[9px] font-mono text-[#8B9AB4] uppercase block">
+            Safe Zone
+          </span>
+          <span className="text-lg font-black font-mono text-[#22D3A5] mt-0.5">
+            {myDistanceToSafeZone}m
+          </span>
+        </div>
+      </div>
+
+      {/* ─── Primary SOS Emergency Button Section ──────────────────────── */}
+      <div className="flex flex-col items-center justify-center my-1 select-none">
+        <div className="relative flex items-center justify-center w-60 h-60">
           {/* Outer Concentric Animated Pulse Rings */}
           <motion.div
             className="absolute inset-0 rounded-full border-2 border-[#FF4D6D]/30"
@@ -84,13 +162,13 @@ export function StudentHomeTab({
             transition={{ duration: 2.2, repeat: Infinity, ease: 'easeInOut' }}
           />
           <motion.div
-            className="absolute inset-6 rounded-full border-2 border-[#FF4D6D]/40"
+            className="absolute inset-5 rounded-full border-2 border-[#FF4D6D]/40"
             animate={{ scale: [1, 1.3, 1], opacity: [0.8, 0, 0.8] }}
             transition={{ duration: 1.8, repeat: Infinity, ease: 'easeInOut', delay: 0.3 }}
           />
 
           {/* Glowing Radial Halo */}
-          <div className="absolute inset-8 rounded-full bg-gradient-to-br from-[#FF4D6D]/30 to-[#FF8C42]/20 blur-xl pointer-events-none" />
+          <div className="absolute inset-8 rounded-full bg-gradient-to-br from-[#FF4D6D]/40 via-[#FF8C42]/20 to-transparent blur-xl pointer-events-none" />
 
           {/* Main Tap SOS Button */}
           <motion.button
@@ -100,21 +178,67 @@ export function StudentHomeTab({
               soundEffects.playAlert();
               onTriggerSOS();
             }}
-            className="relative z-10 w-44 h-44 rounded-full bg-gradient-to-b from-[#FF4D6D] via-[#D90429] to-[#800016] text-white flex flex-col items-center justify-center shadow-[0_0_50px_rgba(255,77,109,0.7)] border-4 border-white/30 cursor-pointer active:brightness-125 transition-all"
+            className="relative z-10 w-44 h-44 rounded-full bg-gradient-to-b from-[#FF4D6D] via-[#D90429] to-[#800016] text-white flex flex-col items-center justify-center shadow-[0_0_60px_rgba(255,77,109,0.8)] border-4 border-white/30 cursor-pointer active:brightness-125 transition-all"
           >
-            <ShieldAlert className="w-10 h-10 mb-1 drop-shadow-md" />
+            <ShieldAlert className="w-10 h-10 mb-1 drop-shadow-lg" />
             <span className="text-3xl font-black tracking-wider uppercase drop-shadow-md">
-              SOS
+              EMERGENCY SOS
             </span>
-            <span className="text-[10px] font-mono tracking-widest uppercase opacity-90 font-bold">
-              TAP FOR HELP
+            <span className="text-[9px] font-mono tracking-widest uppercase opacity-90 font-bold">
+              TAP OR SLIDE BELOW
             </span>
           </motion.button>
         </div>
 
-        <p className="text-xs font-mono text-[#8B9AB4] mt-1 text-center">
-          Instant GPS Beacon · Dispatches Nearest Squad
-        </p>
+        {/* SOS Confirmation Slider */}
+        <div className="w-full max-w-xs mt-2 relative p-1.5 rounded-2xl bg-white/[0.04] border border-white/10 flex items-center">
+          <input
+            type="range"
+            min="0"
+            max="100"
+            value={sliderPosition}
+            onChange={handleSlideConfirm}
+            className="w-full accent-[#FF4D6D] cursor-pointer h-8 opacity-80"
+          />
+          <span className="absolute inset-0 flex items-center justify-center pointer-events-none text-[10px] font-mono font-bold text-[#8B9AB4] uppercase tracking-wider">
+            {sliderPosition > 10 ? 'Keep Sliding to Confirm...' : 'Slide to Trigger SOS Beacon →'}
+          </span>
+        </div>
+      </div>
+
+      {/* ─── 2 Rapid Actions: Mark Safe & Safe Assembly QR Check-In ────── */}
+      <div className="grid grid-cols-2 gap-2">
+        <button
+          onClick={async () => {
+            soundEffects.playSuccess();
+            await markSafe();
+          }}
+          className="p-3.5 rounded-2xl bg-gradient-to-br from-[#22D3A5]/20 to-[#14F1D9]/10 hover:bg-[#22D3A5]/30 border border-[#22D3A5]/40 flex items-center gap-2.5 text-left transition-all cursor-pointer shadow-md group"
+        >
+          <div className="w-9 h-9 rounded-xl bg-[#22D3A5]/20 flex items-center justify-center text-[#22D3A5] flex-shrink-0 group-hover:scale-110 transition-transform">
+            <UserCheck className="w-5 h-5" />
+          </div>
+          <div>
+            <p className="text-xs font-black text-[#F0F4FF]">I AM SAFE</p>
+            <p className="text-[9px] font-mono text-[#22D3A5]">Mark Safe Status</p>
+          </div>
+        </button>
+
+        <button
+          onClick={() => {
+            soundEffects.playClick();
+            onOpenCheckIn();
+          }}
+          className="p-3.5 rounded-2xl bg-gradient-to-br from-[#7C5CFF]/20 to-[#14F1D9]/10 hover:bg-[#7C5CFF]/30 border border-[#7C5CFF]/40 flex items-center gap-2.5 text-left transition-all cursor-pointer shadow-md group"
+        >
+          <div className="w-9 h-9 rounded-xl bg-[#7C5CFF]/20 flex items-center justify-center text-[#7C5CFF] flex-shrink-0 group-hover:scale-110 transition-transform">
+            <QrCode className="w-5 h-5" />
+          </div>
+          <div>
+            <p className="text-xs font-black text-[#F0F4FF]">SAFE CHECK-IN</p>
+            <p className="text-[9px] font-mono text-[#14F1D9]">Scan Assembly QR</p>
+          </div>
+        </button>
       </div>
 
       {/* ─── Today's Active Alerts (Proximity Aware) ────────────────────── */}
@@ -122,13 +246,13 @@ export function StudentHomeTab({
         <div className="flex items-center justify-between mb-3">
           <div className="flex items-center gap-2">
             <Bell className="w-4 h-4 text-[#FF4D6D]" />
-            <h3 className="text-xs font-bold text-[#F0F4FF]">Today's Flash Alerts</h3>
+            <h3 className="text-xs font-bold text-[#F0F4FF]">Campus Threat Flash</h3>
           </div>
           <button
             onClick={onNavigateToAlerts}
             className="text-[10px] font-mono text-[#14F1D9] hover:underline cursor-pointer"
           >
-            View All (2)
+            View All ({incidents.length || 2})
           </button>
         </div>
 
@@ -142,12 +266,12 @@ export function StudentHomeTab({
           <div className="flex-1 min-w-0">
             <div className="flex items-center justify-between">
               <span className="text-xs font-bold text-[#F0F4FF] truncate">
-                Science Lab B – Active Evacuation
+                {incidents[0]?.title || 'Science Lab B – Active Evacuation'}
               </span>
               <span className="text-[9px] font-mono text-[#FF4D6D] font-bold">CRITICAL</span>
             </div>
             <p className="text-[11px] text-[#8B9AB4] line-clamp-1 mt-0.5">
-              Avoid Floor 3 corridors. Proceed to North Quad.
+              {incidents[0]?.description || 'Multiple smoke plumes localized by YOLOv8. Proceed to North Quad.'}
             </p>
             <p className="text-[9px] font-mono text-[#14F1D9] mt-1 flex items-center gap-1">
               <Navigation className="w-2.5 h-2.5" /> 320m from your current position
@@ -164,12 +288,12 @@ export function StudentHomeTab({
             <h3 className="text-xs font-bold text-[#F0F4FF]">Nearby Responders (Live Radar)</h3>
           </div>
           <span className="text-[10px] font-mono text-[#22D3A5] bg-[#22D3A5]/10 px-2 py-0.5 rounded border border-[#22D3A5]/30">
-            3 ACTIVE
+            {responders.length} PATROL UNITS
           </span>
         </div>
 
         <div className="space-y-2">
-          {nearbyResponders.map((resp, i) => (
+          {nearbyRespondersList.map((resp, i) => (
             <div
               key={i}
               className="flex items-center justify-between p-2.5 rounded-2xl bg-white/[0.02] border border-white/[0.04]"

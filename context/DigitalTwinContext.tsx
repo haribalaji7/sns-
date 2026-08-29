@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { supabase } from '@/lib/supabase/client';
+import { supabase, isSupabaseConfigured } from '@/lib/supabase/client';
 import type { Incident, Responder, CrowdPoint } from '@/types/digitalTwin';
 
 interface DigitalTwinState {
@@ -40,6 +40,10 @@ export const DigitalTwinProvider = ({ children }: { children: ReactNode }) => {
 
   // Subscribe to Supabase realtime channels
   useEffect(() => {
+    if (!isSupabaseConfigured) {
+      return;
+    }
+
     const incidentsChannel = supabase
       .channel('public:incidents')
       .on('postgres_changes', { event: '*', schema: 'public', table: 'incidents' }, (payload) => {

@@ -80,7 +80,7 @@ export function DashboardRightPanel() {
   };
 
   return (
-    <aside className="w-full lg:w-96 flex-shrink-0 flex flex-col gap-4 overflow-y-auto overflow-x-hidden p-4 border-l border-[rgba(20,241,217,0.12)] bg-[#070B12]/95 backdrop-blur-xl">
+    <aside className="w-full lg:w-96 flex-shrink-0 flex flex-col gap-4 overflow-y-auto overflow-x-hidden p-4 border-l border-[rgba(20,241,217,0.12)] bg-card/95 dark:bg-[#070B12]/95 backdrop-blur-xl">
       {/* ─── 1. EMERGENCY CARD ─────────────────────────────────────────── */}
       <div className="rounded-2xl p-4 glass border border-[rgba(255,77,109,0.35)] bg-gradient-to-b from-[#FF4D6D]/10 via-transparent to-transparent shadow-xl relative overflow-hidden">
         <div className="flex items-center justify-between gap-2 mb-2">
@@ -88,28 +88,28 @@ export function DashboardRightPanel() {
             <span className="w-1.5 h-1.5 rounded-full bg-[#FF4D6D] animate-ping" />
             CRITICAL EMERGENCY
           </span>
-          <span className="text-[10px] font-mono text-[#8B9AB4]">
+          <span className="text-[10px] font-mono text-muted-foreground">
             ID: {activeIncident.id}
           </span>
         </div>
 
-        <h3 className="text-base font-bold text-[#F0F4FF] leading-snug">
+        <h3 className="text-base font-bold text-foreground leading-snug">
           {activeIncident.title}
         </h3>
-        <p className="text-xs text-[#8B9AB4] mt-1 line-clamp-2">
+        <p className="text-xs text-muted-foreground mt-1 line-clamp-2">
           {activeIncident.description}
         </p>
 
         {/* Location & Risk Matrix */}
         <div className="mt-3 grid grid-cols-2 gap-2 text-left">
           <div className="p-2 rounded-xl bg-white/[0.04] border border-white/5">
-            <span className="text-[10px] font-mono text-[#8B9AB4] block">LOCATION</span>
-            <span className="text-xs font-semibold text-[#F0F4FF] truncate block">
+            <span className="text-[10px] font-mono text-muted-foreground block">LOCATION</span>
+            <span className="text-xs font-semibold text-foreground truncate block">
               {activeIncident.location}
             </span>
           </div>
           <div className="p-2 rounded-xl bg-white/[0.04] border border-white/5">
-            <span className="text-[10px] font-mono text-[#8B9AB4] block">PEOPLE AT RISK</span>
+            <span className="text-[10px] font-mono text-muted-foreground block">PEOPLE AT RISK</span>
             <span className="text-xs font-bold text-[#FF4D6D]">
               {activeIncident.peopleAtRisk} Occupants
             </span>
@@ -119,7 +119,7 @@ export function DashboardRightPanel() {
         {/* ─── 2. AI SEVERITY & CONFIDENCE GAUGE ───────────────────────── */}
         <div className="mt-3 pt-3 border-t border-white/10 flex items-center justify-between">
           <div>
-            <span className="text-[10px] font-mono text-[#8B9AB4] block">AI CONFIDENCE</span>
+            <span className="text-[10px] font-mono text-muted-foreground block">AI CONFIDENCE</span>
             <span className="text-xs font-bold text-[#14F1D9] flex items-center gap-1">
               <Cpu className="w-3 h-3" />
               {activeIncident.aiConfidence}% (YOLOv8)
@@ -127,7 +127,7 @@ export function DashboardRightPanel() {
           </div>
 
           <div className="text-right">
-            <span className="text-[10px] font-mono text-[#8B9AB4] block">THREAT SCORE</span>
+            <span className="text-[10px] font-mono text-muted-foreground block">THREAT SCORE</span>
             <span className="text-xs font-bold text-[#FF4D6D]">
               {activeIncident.severity.toUpperCase()} · 95/100
             </span>
@@ -138,7 +138,7 @@ export function DashboardRightPanel() {
       {/* ─── 3. ASSIGNED RESPONSE SQUAD ────────────────────────────────── */}
       <div className="rounded-2xl p-4 glass border border-white/10">
         <div className="flex items-center justify-between mb-3">
-          <h4 className="text-xs font-mono font-bold text-[#F0F4FF] uppercase flex items-center gap-1.5">
+          <h4 className="text-xs font-mono font-bold text-foreground uppercase flex items-center gap-1.5">
             <Users className="w-3.5 h-3.5 text-[#14F1D9]" />
             Assigned Team ({assignedResponders.length})
           </h4>
@@ -158,8 +158,8 @@ export function DashboardRightPanel() {
                     {resp.name.split(' ')[1]?.[0]}
                   </div>
                   <div className="min-w-0">
-                    <p className="text-xs font-bold text-[#F0F4FF] truncate">{resp.name}</p>
-                    <p className="text-[10px] text-[#8B9AB4] truncate">{resp.role}</p>
+                    <p className="text-xs font-bold text-foreground truncate">{resp.name}</p>
+                    <p className="text-[10px] text-muted-foreground truncate">{resp.role}</p>
                   </div>
                 </div>
 
@@ -178,7 +178,7 @@ export function DashboardRightPanel() {
             ))}
           </div>
         ) : (
-          <div className="p-3 text-center text-xs text-[#8B9AB4] rounded-xl bg-white/[0.02]">
+          <div className="p-3 text-center text-xs text-muted-foreground rounded-xl bg-white/[0.02]">
             No tactical units dispatched yet.
           </div>
         )}
@@ -186,7 +186,7 @@ export function DashboardRightPanel() {
 
       {/* ─── 4. QUICK ACTIONS ──────────────────────────────────────────── */}
       <div className="rounded-2xl p-4 glass border border-white/10">
-        <h4 className="text-xs font-mono font-bold text-[#F0F4FF] uppercase mb-3 flex items-center gap-1.5">
+        <h4 className="text-xs font-mono font-bold text-foreground uppercase mb-3 flex items-center gap-1.5">
           <Zap className="w-3.5 h-3.5 text-[#FFB347]" />
           Autonomous Quick Actions
         </h4>
@@ -212,7 +212,7 @@ export function DashboardRightPanel() {
 
           <button
             onClick={() => handleAction('Lockdown Activated')}
-            className="px-3 py-2 rounded-xl text-[11px] font-semibold bg-white/5 hover:bg-white/10 text-[#F0F4FF] border border-white/10 transition-colors cursor-pointer flex items-center justify-center gap-1"
+            className="px-3 py-2 rounded-xl text-[11px] font-semibold bg-black/5 dark:bg-white/5 hover:bg-black/10 dark:hover:bg-white/10 text-foreground border border-border transition-colors cursor-pointer flex items-center justify-center gap-1"
           >
             <Lock className="w-3 h-3 text-[#FF4D6D]" />
             Lockdown
@@ -220,7 +220,7 @@ export function DashboardRightPanel() {
 
           <button
             onClick={() => handleAction('HVAC Purge Engaged')}
-            className="px-3 py-2 rounded-xl text-[11px] font-semibold bg-white/5 hover:bg-white/10 text-[#F0F4FF] border border-white/10 transition-colors cursor-pointer flex items-center justify-center gap-1"
+            className="px-3 py-2 rounded-xl text-[11px] font-semibold bg-black/5 dark:bg-white/5 hover:bg-black/10 dark:hover:bg-white/10 text-foreground border border-border transition-colors cursor-pointer flex items-center justify-center gap-1"
           >
             <Wind className="w-3 h-3 text-[#14F1D9]" />
             HVAC Purge
@@ -244,7 +244,7 @@ export function DashboardRightPanel() {
       {/* ─── 5. LIVE INCIDENT FEED ─────────────────────────────────────── */}
       <div className="rounded-2xl p-4 glass border border-white/10 flex-1 flex flex-col min-h-[220px]">
         <div className="flex items-center justify-between mb-3">
-          <h4 className="text-xs font-mono font-bold text-[#F0F4FF] uppercase flex items-center gap-1.5">
+          <h4 className="text-xs font-mono font-bold text-foreground uppercase flex items-center gap-1.5">
             <Radio className="w-3.5 h-3.5 text-[#FF4D6D] animate-pulse" />
             Live Feed ({filteredIncidents.length})
           </h4>
@@ -253,7 +253,7 @@ export function DashboardRightPanel() {
             <button
               onClick={() => setFilterType('all')}
               className={`px-1.5 py-0.5 rounded cursor-pointer ${
-                filterType === 'all' ? 'bg-white/20 text-white' : 'text-[#8B9AB4]'
+                filterType === 'all' ? 'bg-black/10 dark:bg-white/20 text-foreground' : 'text-muted-foreground'
               }`}
             >
               All
@@ -261,7 +261,7 @@ export function DashboardRightPanel() {
             <button
               onClick={() => setFilterType('active')}
               className={`px-1.5 py-0.5 rounded cursor-pointer ${
-                filterType === 'active' ? 'bg-[#FF4D6D]/20 text-[#FF4D6D]' : 'text-[#8B9AB4]'
+                filterType === 'active' ? 'bg-[#FF4D6D]/20 text-[#FF4D6D]' : 'text-muted-foreground'
               }`}
             >
               Active
@@ -286,12 +286,12 @@ export function DashboardRightPanel() {
                   <span className="text-[10px] font-mono font-bold text-[#FF4D6D] uppercase">
                     {inc.type}
                   </span>
-                  <span className="text-[9px] font-mono text-[#8B9AB4]">
+                  <span className="text-[9px] font-mono text-muted-foreground">
                     {timeAgo(inc.reportedAt)}
                   </span>
                 </div>
-                <h5 className="text-xs font-semibold text-[#F0F4FF] line-clamp-1">{inc.title}</h5>
-                <p className="text-[10px] text-[#8B9AB4] mt-0.5">{inc.location}</p>
+                <h5 className="text-xs font-semibold text-foreground line-clamp-1">{inc.title}</h5>
+                <p className="text-[10px] text-muted-foreground mt-0.5">{inc.location}</p>
               </div>
             );
           })}

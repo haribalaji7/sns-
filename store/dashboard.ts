@@ -11,7 +11,7 @@ import {
   MOCK_AI_ALERTS, MOCK_METRICS,
 } from '@/lib/mock-data';
 
-import { supabase } from '@/lib/supabase/client';
+import { supabase, isSupabaseConfigured } from '@/lib/supabase/client';
 
 interface DashboardStore {
   // Data
@@ -177,40 +177,42 @@ export const useDashboardStore = create<DashboardStore>()(
       }));
 
       // Asynchronous Supabase insertion & Realtime broadcast
-      try {
-        await supabase.from('incidents').insert({
-          id: newIncident.id,
-          title: newIncident.title,
-          type: newIncident.type,
-          severity: newIncident.severity,
-          status: 'active',
-          description: newIncident.description,
-          latitude: newIncident.coordinates.lat,
-          longitude: newIncident.coordinates.lng,
-          location: newIncident.location,
-          confidence: newIncident.aiConfidence,
-          risk_score: detection.riskScore || 90,
-          people_at_risk: newIncident.peopleAtRisk,
-          assigned_responders: newIncident.assignedResponders,
-          camera_ids: newIncident.cameraIds,
-          tags: newIncident.tags,
-          created_at: newIncident.reportedAt,
-          updated_at: newIncident.updatedAt,
-        });
+      if (isSupabaseConfigured) {
+        try {
+          await supabase.from('incidents').insert({
+            id: newIncident.id,
+            title: newIncident.title,
+            type: newIncident.type,
+            severity: newIncident.severity,
+            status: 'active',
+            description: newIncident.description,
+            latitude: newIncident.coordinates.lat,
+            longitude: newIncident.coordinates.lng,
+            location: newIncident.location,
+            confidence: newIncident.aiConfidence,
+            risk_score: detection.riskScore || 90,
+            people_at_risk: newIncident.peopleAtRisk,
+            assigned_responders: newIncident.assignedResponders,
+            camera_ids: newIncident.cameraIds,
+            tags: newIncident.tags,
+            created_at: newIncident.reportedAt,
+            updated_at: newIncident.updatedAt,
+          });
 
-        await supabase.from('alerts').insert({
-          title: newAlert.title,
-          message: newAlert.message,
-          audience: 'all',
-          type: 'emergency',
-          severity: newAlert.severity,
-          confidence: newAlert.confidence,
-          incident_id: newIncident.id,
-          sent_at: newAlert.timestamp,
-        });
-      } catch (e) {
-        // Graceful fallback for mock mode
-        console.log('Supabase sync (offline or mock):', e);
+          await supabase.from('alerts').insert({
+            title: newAlert.title,
+            message: newAlert.message,
+            audience: 'all',
+            type: 'emergency',
+            severity: newAlert.severity,
+            confidence: newAlert.confidence,
+            incident_id: newIncident.id,
+            sent_at: newAlert.timestamp,
+          });
+        } catch (e) {
+          // Graceful fallback for mock mode
+          console.log('Supabase sync (offline or mock):', e);
+        }
       }
     },
 

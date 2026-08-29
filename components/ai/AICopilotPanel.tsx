@@ -37,23 +37,23 @@ function renderMarkdown(text: string): React.ReactNode {
       const parts = raw.split(/\*\*(.*?)\*\*/g);
       return parts.map((p, i) =>
         i % 2 === 1
-          ? <strong key={i} className="text-[#F0F4FF] font-semibold">{p}</strong>
+          ? <strong key={i} className="text-foreground font-semibold">{p}</strong>
           : p,
       );
     };
 
     if (line.startsWith('# ')) {
-      nodes.push(<h1 key={key++} className="text-sm font-bold text-[#14F1D9] mb-1">{parseLine(line.slice(2))}</h1>);
+      nodes.push(<h1 key={key++} className="text-sm font-bold text-primary mb-1">{parseLine(line.slice(2))}</h1>);
     } else if (line.startsWith('## ')) {
-      nodes.push(<h2 key={key++} className="text-xs font-bold text-[#F0F4FF] mb-1 mt-2">{parseLine(line.slice(3))}</h2>);
+      nodes.push(<h2 key={key++} className="text-xs font-bold text-foreground mb-1 mt-2">{parseLine(line.slice(3))}</h2>);
     } else if (line.startsWith('### ')) {
-      nodes.push(<h3 key={key++} className="text-[11px] font-bold text-[#FFB347] mb-0.5 mt-1.5">{parseLine(line.slice(4))}</h3>);
-    } else if (line.startsWith('- ') || line.startsWith('• ')) {
+      nodes.push(<h3 key={key++} className="text-[11px] font-bold text-warning mb-0.5 mt-1.5">{parseLine(line.slice(4))}</h3>);
+    } else if (line.startsWith('- ') || line.startsWith('* ')) {
       nodes.push(
-        <div key={key++} className="flex items-start gap-2 ml-2 my-0.5">
-          <span className="text-[#14F1D9] mt-0.5 flex-shrink-0 text-[10px]">•</span>
-          <span className="text-[12px] text-[#C5CDE8] leading-relaxed">{parseLine(line.replace(/^[-•] /, ''))}</span>
-        </div>
+        <div key={key++} className="flex items-start gap-1.5 text-[11px] text-foreground/90 my-0.5">
+          <span className="text-primary mt-0.5">•</span>
+          <span>{parseLine(line.slice(2))}</span>
+        </div>,
       );
     } else if (/^\d+\./.test(line)) {
       const match = line.match(/^(\d+)\. (.+)/);
@@ -123,18 +123,18 @@ function MessageBubble({
       <div className={`flex-1 max-w-[90%] ${isAssistant ? '' : 'items-end flex flex-col'}`}>
         <div className={`rounded-2xl px-4 py-3 shadow-lg ${
           isAssistant
-            ? 'bg-[rgba(255,255,255,0.03)] border border-white/[0.08] rounded-tl-sm backdrop-blur-md'
-            : 'bg-gradient-to-br from-[#14F1D9]/20 to-[#7C5CFF]/20 border border-[#14F1D9]/30 rounded-tr-sm'
+            ? 'bg-card/90 dark:bg-[rgba(255,255,255,0.03)] border border-border rounded-tl-sm backdrop-blur-md'
+            : 'bg-gradient-to-br from-primary/20 to-secondary/20 border border-primary/30 rounded-tr-sm text-foreground'
         }`}>
           {isAssistant ? (
             <div className="space-y-1">
               {renderMarkdown(message.content)}
               {message.isStreaming && (
-                <span className="inline-block w-1.5 h-4 bg-[#14F1D9] rounded-sm animate-pulse ml-0.5" />
+                <span className="inline-block w-1.5 h-4 bg-primary rounded-sm animate-pulse ml-0.5" />
               )}
             </div>
           ) : (
-            <p className="text-[12px] text-[#F0F4FF] leading-relaxed">{message.content}</p>
+            <p className="text-[12px] text-foreground leading-relaxed">{message.content}</p>
           )}
         </div>
 
@@ -415,23 +415,23 @@ export function AICopilotPanel({ isOpen, onClose }: AICopilotPanelProps) {
             transition={{ type: 'spring', damping: 28, stiffness: 280 }}
             className="fixed right-0 top-0 bottom-0 z-50 flex flex-col w-full sm:w-[540px] md:w-[600px]"
           >
-            <div className="flex flex-col h-full bg-[#070B12]/95 border-l border-[rgba(20,241,217,0.25)] backdrop-blur-2xl shadow-[-20px_0_60px_rgba(0,0,0,0.7)] overflow-hidden">
-              <div className="flex-shrink-0 px-5 py-4 border-b border-white/[0.08] bg-gradient-to-r from-[#14F1D9]/[0.06] via-[#7C5CFF]/[0.04] to-transparent">
+            <div className="flex flex-col h-full bg-card/95 dark:bg-[#070B12]/95 border-l border-border backdrop-blur-2xl shadow-[-20px_0_60px_rgba(0,0,0,0.5)] overflow-hidden transition-colors duration-300">
+              <div className="flex-shrink-0 px-5 py-4 border-b border-border bg-gradient-to-r from-primary/[0.08] via-secondary/[0.05] to-transparent">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
-                    <div className="relative w-10 h-10 rounded-xl bg-gradient-to-br from-[#14F1D9]/20 to-[#7C5CFF]/20 border border-[#14F1D9]/40 flex items-center justify-center shadow-[0_0_20px_rgba(20,241,217,0.25)]">
-                      <Sparkles className="w-5 h-5 text-[#14F1D9]" />
-                      <span className="absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full bg-[#22D3A5] border-2 border-[#070B12]" />
+                    <div className="relative w-10 h-10 rounded-xl bg-gradient-to-br from-primary/20 to-secondary/20 border border-primary/40 flex items-center justify-center shadow-[0_0_20px_rgba(20,241,217,0.25)]">
+                      <Sparkles className="w-5 h-5 text-primary" />
+                      <span className="absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full bg-success border-2 border-card dark:border-[#070B12]" />
                     </div>
                     <div>
                       <div className="flex items-center gap-2">
-                        <h2 className="text-sm font-bold text-[#F0F4FF]">Emergency AI Copilot</h2>
-                        <span className="text-[8px] font-mono px-2 py-0.5 rounded-full bg-[#14F1D9]/15 text-[#14F1D9] border border-[#14F1D9]/40 font-bold uppercase">
+                        <h2 className="text-sm font-bold text-foreground">Emergency AI Copilot</h2>
+                        <span className="text-[8px] font-mono px-2 py-0.5 rounded-full bg-primary/15 text-primary border border-primary/40 font-bold uppercase">
                           VISUAL ENGINE
                         </span>
                       </div>
-                      <p className="text-[10px] text-[#8B9AB4]">
-                        Multimodal Image, Map & Document Generator
+                      <p className="text-[10px] text-muted-foreground">
+                        Multimodal Image, Map &amp; Document Generator
                       </p>
                     </div>
                   </div>
@@ -533,13 +533,13 @@ export function AICopilotPanel({ isOpen, onClose }: AICopilotPanelProps) {
                 </div>
               )}
 
-              <div className="flex-shrink-0 px-4 pb-4 pt-2 border-t border-white/[0.08] bg-[rgba(7,11,18,0.7)]">
+              <div className="flex-shrink-0 px-4 pb-4 pt-2 border-t border-border bg-card/90 dark:bg-[rgba(7,11,18,0.7)]">
                 <div className={`flex items-end gap-2 rounded-2xl border p-2.5 transition-all duration-200 ${
                   input
-                    ? 'border-[#14F1D9]/50 bg-[rgba(20,241,217,0.05)] shadow-[0_0_25px_rgba(20,241,217,0.12)]'
-                    : 'border-white/[0.08] bg-white/[0.03]'
+                    ? 'border-primary/50 bg-primary/5 shadow-[0_0_25px_rgba(20,241,217,0.12)]'
+                    : 'border-border bg-card/50 dark:bg-white/[0.03]'
                 }`}>
-                  <button className="p-2 rounded-xl text-[#4A5568] hover:text-[#8B9AB4] hover:bg-white/[0.06] transition-all flex-shrink-0 cursor-pointer">
+                  <button className="p-2 rounded-xl text-muted-foreground hover:text-foreground hover:bg-black/5 dark:hover:bg-white/[0.06] transition-all flex-shrink-0 cursor-pointer">
                     <Paperclip className="w-3.5 h-3.5" />
                   </button>
 
@@ -550,7 +550,7 @@ export function AICopilotPanel({ isOpen, onClose }: AICopilotPanelProps) {
                     onKeyDown={handleKeyDown}
                     placeholder="Ask AI, generate evacuation maps, visuals, heatmaps, posters…"
                     rows={1}
-                    className="flex-1 resize-none bg-transparent text-[12px] text-[#F0F4FF] placeholder:text-[#4A5568] outline-none leading-relaxed py-1 max-h-28 overflow-y-auto font-sans"
+                    className="flex-1 resize-none bg-transparent text-[12px] text-foreground placeholder:text-muted-foreground outline-none leading-relaxed py-1 max-h-28 overflow-y-auto font-sans"
                     style={{ scrollbarWidth: 'none' }}
                     onInput={(e) => {
                       const el = e.currentTarget;
